@@ -1,16 +1,23 @@
-from pprint import pprint
 from gensim.models import LdaModel
-from gensim.corpora import Dictionary
+from gensim.corpora import Dictionary, dictionary
 from gensim.models import Phrases
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import RegexpTokenizer
 
-import datasets
+
+def extract_features(train_docs, test_docs, num_features=100):
+    # TODO add LDA hyperparameter tuning
+    model, dictionary = train_lda_model(train_docs, num_topics=num_features)
+    for doc in train_docs:
+        doc_bag_of_words = dictionary.doc2bow(doc)
+        # train_features = model[doc_bag_of_words]
+        train_features, _ = model.inference([doc_bag_of_words])
+        print(train_features)
+        print(train_features.shape)
+        exit()
 
 
-def main():
-    docs = datasets.load_dataset.load_nips()
-
+def train_lda_model(docs, num_topics=100):
     # Tokenize the documents.
 
     # Split the documents into tokens.
@@ -49,20 +56,16 @@ def main():
     # Bag-of-words representation of the documents.
     corpus = [dictionary.doc2bow(doc) for doc in docs]
 
-    print('Number of unique tokens: %d' % len(dictionary))
-    print('Number of documents: %d' % len(corpus))
-
     # Train LDA model.
 
     # Set training parameters.
-    num_topics = 10
     chunksize = 2000
     passes = 20
     iterations = 400
     eval_every = None  # Don't evaluate model perplexity, takes too much time.
 
     # Make a index to word dictionary.
-    temp = dictionary[0]  # This is only to "load" the dictionary.
+    temp = dictionary[0]  # This is only to "load" the dictionary. Without this line id2token is not initialized
     id2word = dictionary.id2token
 
     model = LdaModel(
@@ -76,15 +79,4 @@ def main():
         passes=passes,
         eval_every=eval_every
     )
-
-    top_topics = model.top_topics(corpus)  # , num_words=20)
-
-    # Average topic coherence is the sum of topic coherences of all topics, divided by the number of topics.
-    avg_topic_coherence = sum([t[1] for t in top_topics]) / num_topics
-    print('Average topic coherence: %.4f.' % avg_topic_coherence)
-
-    pprint(top_topics)
-
-
-if __name__ == '__main__':
-    main()
+    return model, dictionary

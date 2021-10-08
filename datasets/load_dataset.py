@@ -1,11 +1,20 @@
 import smart_open
 import tarfile
 import re
+import numpy as np
+
+
+def load_dataset(dataset_name):
+    if dataset_name == 'nips':
+        return load_nips()
+    else:
+        raise ValueError('Invalid dataset name')
 
 
 def load_nips():
     docs = list(extract_nips_documents())
-    return docs
+    labels = np.random.randint(low=0, high=2, size=(len(docs)))
+    return docs, labels
 
 
 def extract_nips_documents(url='https://cs.nyu.edu/~roweis/data/nips12raw_str602.tgz'):

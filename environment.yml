@@ -1,9 +1,12 @@
 name: fake-news
 channels:
   - anaconda
+  - conda-forge
   - default
 dependencies:
   - gensim
   - smart_open==2.0.0
   - nltk
   - autopep8
+  - scikit-learn
+  - numpy
