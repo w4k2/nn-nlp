@@ -1,0 +1,9 @@
+name: fake-news
+channels:
+  - anaconda
+  - default
+dependencies:
+  - gensim
+  - smart_open==2.0.0
+  - nltk
+  - autopep8
