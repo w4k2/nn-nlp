@@ -1,6 +1,7 @@
 import sklearn.neural_network
 import numpy as np
 import argparse
+import pathlib
 
 
 def main():
@@ -8,13 +9,15 @@ def main():
 
     acc_all = []
 
-    for fold_idx in range(10):
-        model = sklearn.neural_network.MLPClassifier()
+    data_path = pathlib.Path(f'extracted_features/{args.dataset_name}_{args.extraction_method}')
 
-        X_train = np.load(f'{args.dataset_name}_fold_{fold_idx}_{args.extraction_method}_X_train.npy')
-        y_train = np.load(f'{args.dataset_name}_fold_{fold_idx}_{args.extraction_method}_y_train.npy')
-        X_test = np.load(f'{args.dataset_name}_fold_{fold_idx}_{args.extraction_method}_X_test.npy')
-        y_test = np.load(f'{args.dataset_name}_fold_{fold_idx}_{args.extraction_method}_y_test.npy')
+    for fold_idx in range(10):
+        model = sklearn.neural_network.MLPClassifier((500, 500))
+
+        X_train = np.load(data_path / f'fold_{fold_idx}_X_train.npy')
+        y_train = np.load(data_path / f'fold_{fold_idx}_y_train.npy')
+        X_test = np.load(data_path / f'fold_{fold_idx}_X_test.npy')
+        y_test = np.load(data_path / f'fold_{fold_idx}_y_test.npy')
 
         model.fit(X_train, y_train)
         accuracy = model.score(X_test, y_test)

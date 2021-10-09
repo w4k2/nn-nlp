@@ -1,6 +1,8 @@
 import argparse
 import sklearn.model_selection
 import numpy as np
+import os
+import pathlib
 
 import datasets
 import lda
@@ -10,16 +12,18 @@ def main():
     args = parse_args()
     docs, labels = datasets.load_dataset(args.dataset_name)
 
+    output_path = pathlib.Path(f'extracted_features/{args.dataset_name}_{args.extraction_method}')
+    os.makedirs(output_path, exist_ok=True)
+
     k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
     for fold_idx, (train_idx, test_idx) in enumerate(k_fold.split(docs, labels)):
-        X_train = [docs[i] for i in train_idx]
-        X_test = [docs[i] for i in test_idx]
+        docs_train = [docs[i] for i in train_idx]
+        docs_test = [docs[i] for i in test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
-        features_train, features_test = extract_features(X_train, X_test, args.extraction_method)
-        np.save(f'{args.dataset_name}_fold_{fold_idx}_{args.extraction_method}_X_train.npy', features_train)
-        np.save(f'{args.dataset_name}_fold_{fold_idx}_{args.extraction_method}_y_train.npy', y_train)
-        np.save(f'{args.dataset_name}_fold_{fold_idx}_{args.extraction_method}_X_test.npy', features_test)
-        np.save(f'{args.dataset_name}_fold_{fold_idx}_{args.extraction_method}_y_test.npy', y_test)
+        X_train, X_test = extract_features(docs_train, docs_test, args.extraction_method)
+
+        for name, array in zip(('X_train', 'y_train', 'X_test', 'y_test'), (X_train, y_train, X_test, y_test)):
+            np.save(output_path / f'fold_{fold_idx}_{name}.npy', array)
 
 
 def extract_features(X_train, X_test, extraction_method):
