@@ -6,6 +6,7 @@ import pathlib
 
 import datasets
 import lda
+import bert
 
 
 def main():
@@ -20,15 +21,17 @@ def main():
         docs_train = [docs[i] for i in train_idx]
         docs_test = [docs[i] for i in test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
-        X_train, X_test = extract_features(docs_train, docs_test, args.extraction_method)
+        X_train, X_test = extract_features(docs_train, y_train, docs_test, args.extraction_method)
 
         for name, array in zip(('X_train', 'y_train', 'X_test', 'y_test'), (X_train, y_train, X_test, y_test)):
             np.save(output_path / f'fold_{fold_idx}_{name}.npy', array)
 
 
-def extract_features(X_train, X_test, extraction_method):
+def extract_features(X_train, y_train, X_test, extraction_method):
     if extraction_method == 'lda':
         return lda.extract_features(X_train, X_test)
+    if extraction_method == 'bert':
+        return bert.extract_features(X_train, y_train, X_test)
     else:
         raise ValueError('Invalid extraction method')
 
@@ -37,7 +40,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset_name', type=str, choices=('nips',))
-    parser.add_argument('--extraction_method', type=str, choices=('lda',))
+    parser.add_argument('--extraction_method', type=str, choices=('lda', 'bert',))
 
     args = parser.parse_args()
     return args

@@ -12,7 +12,6 @@ def extract_features(train_docs, test_docs, num_features=100):
     test_docs = tokenize(test_docs)
     test_bow = [dictionary.doc2bow(doc) for doc in test_docs]
     test_features, _ = model.inference(test_bow)
-
     return train_features, test_features
 
 
