@@ -12,7 +12,7 @@ from bert_utils import handle, preprocess
 
 
 
-def extract_features(x_train, y_train, x_test, y_test, num_features=100):
+def extract_features(x_train, y_train, x_test, num_features=100):
     base_model = train_bert_model(x_train, y_train, num_topics=num_features)
     extraction_model = tf.keras.Model(base_model.input, base_model.layers[-2].output)
     train_features = extraction_model.predict(x_train)["pooled_output"]
@@ -24,13 +24,10 @@ def extract_features(x_train, y_train, x_test, y_test, num_features=100):
 
 
 def train_bert_model(x_train, y_train, num_topics=100):
-    bert_model_name = 'small_bert/bert_en_uncased_L-4_H-512_A-8'
-    tfhub_handle_encoder = handle(bert_model_name)
-    tfhub_handle_preprocess = preprocess(bert_model_name)
     text_input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='text')
-    preprocessing_layer = hub.KerasLayer(tfhub_handle_preprocess, name='preprocessing')
+    preprocessing_layer = hub.KerasLayer("https://tfhub.dev/tensorflow/bert_multi_cased_preprocess/3", name='preprocessing')
     encoder_inputs = preprocessing_layer(text_input)
-    encoder = hub.KerasLayer(tfhub_handle_encoder, trainable=True, name='BERT_encoder')
+    encoder = hub.KerasLayer("https://tfhub.dev/tensorflow/bert_multi_cased_L-12_H-768_A-12/4", trainable=True, name='BERT_encoder')
     outputs = encoder(encoder_inputs)
     net = outputs['pooled_output']
     net = tf.keras.layers.Dense(2, activation='softmax', name='classifier')(net)
