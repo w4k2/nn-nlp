@@ -5,7 +5,7 @@ channels:
   - default
 dependencies:
   - gensim
-  - smart_open==2.0.0
+  - smart_open
   - nltk
   - autopep8
   - scikit-learn

@@ -31,7 +31,7 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_name', type=str, choices=('nips',))
+    parser.add_argument('--dataset_name', type=str, choices=('nips','esp_fake',))
     parser.add_argument('--extraction_method', type=str, choices=('lda','bert',))
 
     args = parser.parse_args()

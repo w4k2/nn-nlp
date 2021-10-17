@@ -1,0 +1,9 @@
+numpy==1.19.2
+tf_models_official==2.6.0
+tensorflow==2.6.0
+nltk==3.6.5
+smart_open==5.2.1
+tensorflow_hub==0.12.0
+gensim==4.1.2
+tensorflow_text==2.6.0
+scikit_learn==1.0
