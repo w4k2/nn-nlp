@@ -39,7 +39,7 @@ def extract_features(X_train, y_train, X_test, extraction_method):
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_name', type=str, choices=('nips', 'esp_fake',))
+    parser.add_argument('--dataset_name', type=str, choices=('nips', 'esp_fake', 'liar',))
     parser.add_argument('--extraction_method', type=str, choices=('lda', 'bert',))
 
     args = parser.parse_args()
