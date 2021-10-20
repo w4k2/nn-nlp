@@ -10,3 +10,5 @@ dependencies:
   - autopep8
   - scikit-learn
   - numpy
+  - pandas
+  - tqdm

@@ -3,6 +3,7 @@ import sklearn.model_selection
 import numpy as np
 import os
 import pathlib
+from tqdm import tqdm
 
 import datasets
 import lda
@@ -17,7 +18,8 @@ def main():
     os.makedirs(output_path, exist_ok=True)
 
     k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
-    for fold_idx, (train_idx, test_idx) in enumerate(k_fold.split(docs, labels)):
+    pbar = tqdm(enumerate(k_fold.split(docs, labels)), desc='Fold feature extraction', total=10)
+    for fold_idx, (train_idx, test_idx) in pbar:
         docs_train = [docs[i] for i in train_idx]
         docs_test = [docs[i] for i in test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
