@@ -1,0 +1,25 @@
+name: fake-news-gpu
+channels:
+  - anaconda
+  - conda-forge
+  - hcc
+  - esri
+  - default
+dependencies:
+  - smart_open
+  - nltk
+  - autopep8
+  - scikit-learn
+  - numpy
+  - pandas
+  - tqdm
+  - gin-config
+  # - pip
+  - tensorflow-gpu=2.3
+  - tensorflow-hub
+  - tensorflow-addons
+  - cython
+
+  # - pip:
+    # - tf-models-official
+    # - tensorflow-text

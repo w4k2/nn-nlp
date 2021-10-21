@@ -7,7 +7,6 @@ from tqdm import tqdm
 
 import datasets
 import lda
-import bert
 
 
 def main():
@@ -32,8 +31,6 @@ def main():
 def extract_features(X_train, y_train, X_test, extraction_method):
     if extraction_method == 'lda':
         return lda.extract_features(X_train, X_test)
-    if extraction_method == 'bert':
-        return bert.extract_features(X_train, y_train, X_test)
     else:
         raise ValueError('Invalid extraction method')
 
@@ -42,7 +39,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset_name', type=str, choices=('nips', 'esp_fake', 'liar',))
-    parser.add_argument('--extraction_method', type=str, choices=('lda', 'bert',))
+    parser.add_argument('--extraction_method', type=str, choices=('lda',))
 
     args = parser.parse_args()
     return args
