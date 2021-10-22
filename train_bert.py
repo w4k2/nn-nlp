@@ -1,3 +1,4 @@
+import datasets
 import argparse
 import os
 import sklearn.model_selection
@@ -5,9 +6,9 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
 import tensorflow_text as text  # do not remove this import, it is required for registring ops
-from official.nlp import optimization
 from tqdm import tqdm
-import datasets
+# from official.nlp import optimization
+from adamw_optimizer import create_optimizer
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -67,7 +68,7 @@ def train_bert_model(x_train, y_train, model, epochs=5):
     num_train_steps = steps_per_epoch * epochs
     num_warmup_steps = int(0.1*num_train_steps)
     init_lr = 3e-5
-    optimizer = optimization.create_optimizer(
+    optimizer = create_optimizer(
         init_lr=init_lr,
         num_train_steps=num_train_steps,
         num_warmup_steps=num_warmup_steps,

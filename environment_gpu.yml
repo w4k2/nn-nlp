@@ -14,12 +14,9 @@ dependencies:
   - pandas
   - tqdm
   - gin-config
-  # - pip
-  - tensorflow-gpu=2.3
-  - tensorflow-hub
-  - tensorflow-addons
-  - cython
-
-  # - pip:
-    # - tf-models-official
-    # - tensorflow-text
+  - pip
+  - tensorflow-gpu=2.5.0
+  - tensorflow-hub=2.5.0
+  - tensorflow-addons=2.5.0
+  - pip:
+    - tensorflow-text
