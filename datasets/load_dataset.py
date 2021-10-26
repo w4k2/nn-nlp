@@ -48,7 +48,7 @@ def load_liar():
     df = read_dataframe(path_to_dataset)
     dataset = df.to_numpy()
     labels = np.asarray([convert_to_integer(record[1]) for record in dataset])
-    docs = [record[2] + " " + record[3] + " " + record[4]
+    docs = [record[2]  # + " " + record[3] + " " + record[4]
             for record in dataset]
 
     return docs, labels

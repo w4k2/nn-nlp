@@ -6,13 +6,21 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
 import tensorflow_text as text  # do not remove this import, it is required for registring ops
+import pathlib
 from tqdm import tqdm
+from sklearn.metrics import accuracy_score
 from adamw_optimizer import create_optimizer
 
 
 def main():
     args = parse_args()
     docs, labels = datasets.load_dataset(args.dataset_name)
+    # for i in range(10):
+    #     print(docs[i])
+    #     print()
+    # exit()
+
+    acc_all = []
 
     k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
     pbar = tqdm(enumerate(k_fold.split(docs, labels)), desc='Fold feature extraction', total=10)
@@ -20,7 +28,15 @@ def main():
         docs_train = [docs[i] for i in train_idx]
         docs_test = [docs[i] for i in test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
-        X_train, X_test = train_model(docs_train, y_train, docs_test, language=args.language)
+        model = train_model(docs_train, y_train, docs_test, language=args.language)
+        y_pred = model.predict(docs_test)
+        accuracy = accuracy_score(y_test, y_pred.argmax(axis=1))
+        print(f'fold {fold_idx} = {accuracy}')
+        acc_all.append(accuracy)
+
+    output_path = pathlib.Path('results/')
+    os.makedirs(output_path, exist_ok=True)
+    np.save(output_path / f'{args.dataset_name}_bert_{args.language}.npy', acc_all)
 
 
 def parse_args():
@@ -45,15 +61,11 @@ def train_model(x_train, y_train, x_test, language='eng'):
     bert_preprocess_url = preprocess_url_dict[language]
     bert_model_url = model_url_dict[language]
     model = get_model(bert_preprocess_url, bert_model_url)
-    base_model = train_bert_model(x_train, y_train, model)
-    extraction_model = tf.keras.Model(base_model.input, base_model.layers[-2].output)
-    train_features = extraction_model.predict(x_train)["pooled_output"]
-    test_features = extraction_model.predict(x_test)["pooled_output"]
-
-    return train_features, test_features
+    trained_model = train_bert_model(x_train, y_train, model)
+    return trained_model
 
 
-def train_bert_model(x_train, y_train, model, epochs=5):
+def train_bert_model(x_train, y_train, model, init_lr=3e-5, epochs=5):
     y_train_c = tf.keras.utils.to_categorical(y_train)
     x_train_c = np.asarray(x_train)
 
@@ -62,7 +74,7 @@ def train_bert_model(x_train, y_train, model, epochs=5):
     steps_per_epoch = np.sqrt(len(x_train))
     num_train_steps = steps_per_epoch * epochs
     num_warmup_steps = int(0.1*num_train_steps)
-    init_lr = 3e-5
+
     optimizer = create_optimizer(
         init_lr=init_lr,
         num_train_steps=num_train_steps,
@@ -73,7 +85,8 @@ def train_bert_model(x_train, y_train, model, epochs=5):
     model.fit(
         x=x_train_c,
         y=y_train_c,
-        epochs=epochs
+        epochs=epochs,
+        batch_size=32,
     )
 
     return model
@@ -86,6 +99,7 @@ def get_model(bert_preprocess_url, bert_model_url):
     encoder = hub.KerasLayer(bert_model_url, trainable=True, name='BERT_encoder')
     outputs = encoder(encoder_inputs)
     out = outputs['pooled_output']
+    out = tf.keras.layers.Dropout(0.1)(out)
     y = tf.keras.layers.Dense(2, activation='softmax', name='classifier')(out)
     model = tf.keras.Model(text_input, y)
     return model
