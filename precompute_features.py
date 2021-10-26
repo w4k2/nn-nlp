@@ -32,7 +32,7 @@ def main():
 def extract_features(X_train, y_train, X_test, args):
     if args.extraction_method == 'lda':
         return lda.extract_features(X_train, X_test, num_features=args.num_features)
-    elif args.extraction_method == 'tf-idf':
+    elif args.extraction_method == 'tf_idf':
         return tf_idf.extract_features(X_train, X_test, num_features=args.num_features)
     else:
         raise ValueError('Invalid extraction method')
@@ -42,7 +42,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset_name', type=str, choices=('nips', 'esp_fake', 'liar',))
-    parser.add_argument('--extraction_method', type=str, choices=('lda', 'tf-idf'))
+    parser.add_argument('--extraction_method', type=str, choices=('lda', 'tf_idf'))
     parser.add_argument('--num_features', type=int, default=100)
 
     args = parser.parse_args()
