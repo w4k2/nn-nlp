@@ -15,10 +15,6 @@ from adamw_optimizer import create_optimizer
 def main():
     args = parse_args()
     docs, labels = datasets.load_dataset(args.dataset_name)
-    # for i in range(10):
-    #     print(docs[i])
-    #     print()
-    # exit()
 
     acc_all = []
 
