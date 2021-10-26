@@ -7,11 +7,7 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import tensorflow_text as text  # do not remove this import, it is required for registring ops
 from tqdm import tqdm
-# from official.nlp import optimization
 from adamw_optimizer import create_optimizer
-
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 
 def main():
@@ -38,7 +34,6 @@ def parse_args():
 
 
 def train_model(x_train, y_train, x_test, language='eng'):
-    print(f'\n\n{tf.test.is_gpu_available(cuda_only=False, min_cuda_compute_capability=None)}\n\n')
     preprocess_url_dict = {
         'eng': "https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3",
         'multi': "https://tfhub.dev/tensorflow/bert_multi_cased_preprocess/3"

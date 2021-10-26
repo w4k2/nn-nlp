@@ -15,8 +15,8 @@ dependencies:
   - tqdm
   - gin-config
   - pip
-  - tensorflow-gpu=2.5.0
-  - tensorflow-hub=2.5.0
-  - tensorflow-addons=2.5.0
+  - tensorflow-gpu=2.2.0
+  - tensorflow-hub
+  - tensorflow-addons
   - pip:
     - tensorflow-text
