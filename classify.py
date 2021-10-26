@@ -2,6 +2,7 @@ import sklearn.neural_network
 import numpy as np
 import argparse
 import pathlib
+import os
 
 
 def main():
@@ -27,12 +28,16 @@ def main():
     avrg_acc = sum(acc_all) / len(acc_all)
     print(f'\naverage accuracy = {avrg_acc}')
 
+    output_path = pathlib.Path('results/')
+    os.makedirs(output_path, exist_ok=True)
+    np.save(output_path / f'{args.dataset_name}_{args.extraction_method}.npy', acc_all)
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_name', type=str, choices=('nips','esp_fake',))
-    parser.add_argument('--extraction_method', type=str, choices=('lda','bert',))
+    parser.add_argument('--dataset_name', type=str, choices=('nips', 'esp_fake', 'liar'))
+    parser.add_argument('--extraction_method', type=str, choices=('lda', 'tf_idf',))
 
     args = parser.parse_args()
     return args
