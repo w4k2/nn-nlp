@@ -3,15 +3,18 @@ import tarfile
 import re
 import numpy as np
 import pandas as pd
+from sklearn.utils import resample
 
 
 def load_dataset(dataset_name):
     if dataset_name == 'nips':
         return load_nips()
-    if dataset_name == 'esp_fake':
+    elif dataset_name == 'esp_fake':
         return load_esp_fake()
-    if dataset_name == 'liar':
+    elif dataset_name == 'liar':
         return load_liar()
+    elif dataset_name == 'bs_detector':
+        return load_bs_detector()
     else:
         raise ValueError('Invalid dataset name')
 
@@ -101,3 +104,23 @@ def validate_string(doc):
     if(doc == ''):
         raise Exception("None string found during preprocessing!")
     return str(doc)
+
+
+def load_bs_detector():
+    random_state = 42
+    df_words = pd.read_csv('datasets/bs_detector/data.csv')
+    y = df_words['label'].values.astype(int)
+
+    base = df_words['text']
+    base = base[:1000]
+    y = y[:1000]
+    s_idx = np.array(range(len(y))).astype(int)
+
+    resampled = resample(s_idx, n_samples=int(len(y)),
+                         replace=False, stratify=y,
+                         random_state=random_state)
+    X = base.values.astype('U')
+    docs = X[resampled]
+    print(docs[1])
+    exit()
+    return docs, y
