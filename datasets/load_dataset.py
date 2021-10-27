@@ -118,4 +118,5 @@ def load_bs_detector():
                          random_state=42)
     X = base.values.astype('U')
     docs = X[resampled]
-    return docs, y
+    labels = y[resampled]
+    return docs, labels
