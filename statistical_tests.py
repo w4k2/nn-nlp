@@ -17,6 +17,9 @@ def main():
     avrg_table_liar = get_average_table(results, 'liar')
     pretty_print_table(avrg_table_liar, table_name='Liar avrg results')
     utils.save_tex_table.save_tex_table(avrg_table_liar, 'tables/liar_avrg.tex')
+    avrg_table_bs_detector = get_average_table(results, 'bs_detector')
+    pretty_print_table(avrg_table_bs_detector, table_name='bs_detector avrg results')
+    utils.save_tex_table.save_tex_table(avrg_table_bs_detector, 'tables/bs_detector_avrg.tex')
 
     stats_table_esp = statistical_tests_table(results, 'esp_fake')
     pretty_print_table(stats_table_esp, table_name='Esp fake F-test')
@@ -24,6 +27,9 @@ def main():
     stats_table_liar = statistical_tests_table(results, 'liar')
     pretty_print_table(stats_table_liar, table_name='Liar F-test')
     utils.save_tex_table.save_tex_table(stats_table_liar, 'tables/liar_stats.tex')
+    stats_table_bs_detector = statistical_tests_table(results, 'bs_detector')
+    pretty_print_table(stats_table_bs_detector, table_name='bs_detector F-test')
+    utils.save_tex_table.save_tex_table(stats_table_bs_detector, 'tables/bs_detector_stats.tex')
 
 
 def load_results():
