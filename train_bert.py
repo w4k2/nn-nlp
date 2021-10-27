@@ -24,7 +24,8 @@ def main():
         docs_train = [docs[i] for i in train_idx]
         docs_test = [docs[i] for i in test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
-        model = train_model(docs_train, y_train, docs_test, language=args.language)
+        model = get_model(language=args.language)
+        model = train_bert_model(docs_train, y_train, model)
         y_pred = model.predict(docs_test)
         accuracy = accuracy_score(y_test, y_pred.argmax(axis=1))
         print(f'fold {fold_idx} = {accuracy}')
@@ -45,7 +46,7 @@ def parse_args():
     return args
 
 
-def train_model(x_train, y_train, x_test, language='eng'):
+def get_model(language='eng'):
     preprocess_url_dict = {
         'eng': "https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3",
         'multi': "https://tfhub.dev/tensorflow/bert_multi_cased_preprocess/3"
@@ -56,9 +57,21 @@ def train_model(x_train, y_train, x_test, language='eng'):
     }
     bert_preprocess_url = preprocess_url_dict[language]
     bert_model_url = model_url_dict[language]
-    model = get_model(bert_preprocess_url, bert_model_url)
-    trained_model = train_bert_model(x_train, y_train, model)
-    return trained_model
+    model = get_keras_model(bert_preprocess_url, bert_model_url)
+    return model
+
+
+def get_keras_model(bert_preprocess_url, bert_model_url):
+    text_input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='text')
+    preprocessing_layer = hub.KerasLayer(bert_preprocess_url, name='preprocessing')
+    encoder_inputs = preprocessing_layer(text_input)
+    encoder = hub.KerasLayer(bert_model_url, trainable=True, name='BERT_encoder')
+    outputs = encoder(encoder_inputs)
+    out = outputs['pooled_output']
+    out = tf.keras.layers.Dropout(0.1)(out)
+    y = tf.keras.layers.Dense(2, activation='softmax', name='classifier')(out)
+    model = tf.keras.Model(text_input, y)
+    return model
 
 
 def train_bert_model(x_train, y_train, model, init_lr=3e-5, epochs=5):
@@ -85,19 +98,6 @@ def train_bert_model(x_train, y_train, model, init_lr=3e-5, epochs=5):
         batch_size=32,
     )
 
-    return model
-
-
-def get_model(bert_preprocess_url, bert_model_url):
-    text_input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='text')
-    preprocessing_layer = hub.KerasLayer(bert_preprocess_url, name='preprocessing')
-    encoder_inputs = preprocessing_layer(text_input)
-    encoder = hub.KerasLayer(bert_model_url, trainable=True, name='BERT_encoder')
-    outputs = encoder(encoder_inputs)
-    out = outputs['pooled_output']
-    out = tf.keras.layers.Dropout(0.1)(out)
-    y = tf.keras.layers.Dense(2, activation='softmax', name='classifier')(out)
-    model = tf.keras.Model(text_input, y)
     return model
 
 

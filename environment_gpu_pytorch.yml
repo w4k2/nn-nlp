@@ -1,0 +1,17 @@
+name: fake-news-gpu-pytorch
+channels:
+  - anaconda
+  - conda-forge
+  - pytorch
+  - default
+dependencies:
+  - smart_open
+  - nltk
+  - autopep8
+  - scikit-learn
+  - numpy
+  - pandas
+  - tqdm
+  - transformers
+  - pytorch
+  - cudatoolkit
