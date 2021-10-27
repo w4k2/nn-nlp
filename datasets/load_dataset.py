@@ -107,20 +107,15 @@ def validate_string(doc):
 
 
 def load_bs_detector():
-    random_state = 42
     df_words = pd.read_csv('datasets/bs_detector/data.csv')
     y = df_words['label'].values.astype(int)
 
     base = df_words['text']
-    base = base[:1000]
-    y = y[:1000]
     s_idx = np.array(range(len(y))).astype(int)
 
     resampled = resample(s_idx, n_samples=int(len(y)),
                          replace=False, stratify=y,
-                         random_state=random_state)
+                         random_state=42)
     X = base.values.astype('U')
     docs = X[resampled]
-    print(docs[1])
-    exit()
     return docs, y
