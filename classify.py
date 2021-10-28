@@ -15,10 +15,10 @@ def main():
     for fold_idx in range(10):
         model = sklearn.neural_network.MLPClassifier((500, 500))
 
-        X_train = np.load(data_path / f'fold_{fold_idx}_X_train.npy')
-        y_train = np.load(data_path / f'fold_{fold_idx}_y_train.npy')
-        X_test = np.load(data_path / f'fold_{fold_idx}_X_test.npy')
-        y_test = np.load(data_path / f'fold_{fold_idx}_y_test.npy')
+        X_train = np.load(data_path / f'fold_{fold_idx}_X_train_{args.attribute}.npy')
+        y_train = np.load(data_path / f'fold_{fold_idx}_y_train_{args.attribute}.npy')
+        X_test = np.load(data_path / f'fold_{fold_idx}_X_test_{args.attribute}.npy')
+        y_test = np.load(data_path / f'fold_{fold_idx}_y_test_{args.attribute}.npy')
 
         model.fit(X_train, y_train)
         accuracy = model.score(X_test, y_test)
@@ -30,13 +30,14 @@ def main():
 
     output_path = pathlib.Path('results/')
     os.makedirs(output_path, exist_ok=True)
-    np.save(output_path / f'{args.dataset_name}_{args.extraction_method}.npy', acc_all)
+    np.save(output_path / f'{args.dataset_name}_{args.extraction_method}_{args.attribute}.npy', acc_all)
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector'))
+    parser.add_argument('--attribute', choices=('text', 'title'), required=True)
     parser.add_argument('--extraction_method', type=str, choices=('lda', 'tf_idf'))
 
     args = parser.parse_args()

@@ -12,7 +12,7 @@ import tf_idf
 
 def main():
     args = parse_args()
-    docs, labels = datasets.load_dataset(args.dataset_name)
+    docs, labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
 
     output_path = pathlib.Path(f'extracted_features/{args.dataset_name}_{args.extraction_method}')
     os.makedirs(output_path, exist_ok=True)
@@ -26,7 +26,7 @@ def main():
         X_train, X_test = extract_features(docs_train, y_train, docs_test, args)
 
         for name, array in zip(('X_train', 'y_train', 'X_test', 'y_test'), (X_train, y_train, X_test, y_test)):
-            np.save(output_path / f'fold_{fold_idx}_{name}.npy', array)
+            np.save(output_path / f'fold_{fold_idx}_{name}_{args.attribute}.npy', array)
 
 
 def extract_features(X_train, y_train, X_test, args):
@@ -42,6 +42,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector'))
+    parser.add_argument('--attribute', choices=('text', 'title'), required=True)
     parser.add_argument('--extraction_method', type=str, choices=('lda', 'tf_idf'))
     parser.add_argument('--num_features', type=int, default=100)
 
