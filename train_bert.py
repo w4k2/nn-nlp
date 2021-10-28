@@ -21,8 +21,8 @@ def main():
     k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
     pbar = tqdm(enumerate(k_fold.split(docs, labels)), desc='Fold feature extraction', total=10)
     for fold_idx, (train_idx, test_idx) in pbar:
-        docs_train = [docs[i] for i in train_idx]
-        docs_test = [docs[i] for i in test_idx]
+        docs_train = [str(docs[i]) for i in train_idx]
+        docs_test = [str(docs[i]) for i in test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
         model = get_model(language=args.language)
         model = train_bert_model(docs_train, y_train, model)
@@ -39,8 +39,8 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_name', type=str, choices=('nips', 'esp_fake', 'liar',))
-    parser.add_argument('--language', type=str, choices=('eng', 'multi'))
+    parser.add_argument('--dataset_name', type=str, choices=('nips', 'esp_fake', 'liar', 'bs_detector'))
+    parser.add_argument('--language', type=str, choices=('eng', 'multi'), help='language BERT model was pretrained on')
 
     args = parser.parse_args()
     return args
