@@ -14,7 +14,7 @@ from utils.adamw_optimizer import create_optimizer
 
 def main():
     args = parse_args()
-    docs, labels = datasets.load_dataset(args.dataset_name)
+    docs, labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
 
     acc_all = []
 
@@ -41,6 +41,7 @@ def parse_args():
 
     parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector'))
     parser.add_argument('--language', type=str, choices=('eng', 'multi'), help='language BERT model was pretrained on')
+    parser.add_argument('--attribute', choices=('text', 'title'), required=True)
 
     args = parser.parse_args()
     return args
