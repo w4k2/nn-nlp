@@ -1,3 +1,4 @@
+import argparse
 import torch
 import datasets
 import pathlib
@@ -26,6 +27,8 @@ class TextDataset(torch.utils.data.Dataset):
 
 
 def main():
+    args = parse_args()
+
     dataset_name = 'esp_fake'
     dataset_docs, dataset_labels = datasets.load_dataset(dataset_name)
 
@@ -106,7 +109,16 @@ def main():
 
     output_path = pathlib.Path('results/')
     os.makedirs(output_path, exist_ok=True)
-    np.save(output_path / f'{dataset_name}_beto.npy', acc_all)
+    np.save(output_path / f'{dataset_name}_beto_{args.attribute}.npy', acc_all)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--attribute', choices=('text', 'title'), required=True)
+
+    args = parser.parse_args()
+    return args
 
 
 if __name__ == '__main__':

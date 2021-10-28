@@ -33,7 +33,7 @@ def main():
 
     output_path = pathlib.Path('results/')
     os.makedirs(output_path, exist_ok=True)
-    np.save(output_path / f'{args.dataset_name}_bert_{args.language}.npy', acc_all)
+    np.save(output_path / f'{args.dataset_name}_bert_{args.language}_{args.attribute}.npy', acc_all)
 
 
 def parse_args():
