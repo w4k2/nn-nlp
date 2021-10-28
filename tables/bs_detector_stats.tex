@@ -1,9 +1,11 @@
-\begin{tabular}{|r|l|l|l|l|}
+\begin{tabular}{|r|l|l|l|l|l|l|}
   \hline
-  None & bs detector lda stat & bs detector lda p-value & bs detector tf idf stat & bs detector tf idf p-value \\ 
+  None & bs detector tf idf text stat & bs detector tf idf text p-value & bs detector lda text stat & bs detector lda text p-value & bs detector bert eng text stat & bs detector bert eng text p-value \\ 
   \hline
-  bs detector lda & None & None & 123.333 & 2.402e-05 \\ 
+  bs detector tf idf text & None & None & 123.333 & 2.402e-05 & 855.650 & 1.930e-07 \\ 
   \hline
-  bs detector tf idf & 123.333 & 2.402e-05 & None & None \\ 
+  bs detector lda text & 123.333 & 2.402e-05 & None & None & 652.453 & 3.798e-07 \\ 
+  \hline
+  bs detector bert eng text & 855.650 & 1.930e-07 & 652.453 & 3.798e-07 & None & None \\ 
   \hline
 \end{tabular}

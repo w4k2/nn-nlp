@@ -1,11 +1,13 @@
-\begin{tabular}{|r|l|l|l|l|l|l|}
+\begin{tabular}{|r|l|l|l|l|l|l|l|l|}
   \hline
-  None & esp fake lda stat & esp fake lda p-value & esp fake tf idf stat & esp fake tf idf p-value & esp fake bert multi stat & esp fake bert multi p-value \\ 
+  None & esp fake lda text stat & esp fake lda text p-value & esp fake bert multi text stat & esp fake bert multi text p-value & esp fake tf idf text stat & esp fake tf idf text p-value & esp fake beto text stat & esp fake beto text p-value \\ 
   \hline
-  esp fake lda & None & None & 7.950 & 0.016 & 14.986 & 0.004 \\ 
+  esp fake lda text & None & None & 14.986 & 0.004 & 7.950 & 0.016 & 59.681 & 0.000 \\ 
   \hline
-  esp fake tf idf & 7.950 & 0.016 & None & None & 8.556 & 0.014 \\ 
+  esp fake bert multi text & 14.986 & 0.004 & None & None & 8.556 & 0.014 & 6.082 & 0.029 \\ 
   \hline
-  esp fake bert multi & 14.986 & 0.004 & 8.556 & 0.014 & None & None \\ 
+  esp fake tf idf text & 7.950 & 0.016 & 8.556 & 0.014 & None & None & 124.285 & 2.357e-05 \\ 
+  \hline
+  esp fake beto text & 59.681 & 0.000 & 6.082 & 0.029 & 124.285 & 2.357e-05 & None & None \\ 
   \hline
 \end{tabular}
