@@ -9,7 +9,7 @@ import tensorflow_text as text  # do not remove this import, it is required for 
 import pathlib
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
-from adamw_optimizer import create_optimizer
+from utils.adamw_optimizer import create_optimizer
 
 
 def main():
@@ -39,7 +39,7 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_name', type=str, choices=('nips', 'esp_fake', 'liar', 'bs_detector'))
+    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector'))
     parser.add_argument('--language', type=str, choices=('eng', 'multi'), help='language BERT model was pretrained on')
 
     args = parser.parse_args()
