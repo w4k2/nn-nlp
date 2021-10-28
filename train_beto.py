@@ -1,6 +1,4 @@
 import torch
-import torch.nn as nn
-from torch.nn.modules import fold
 import datasets
 import pathlib
 import os
@@ -8,7 +6,7 @@ import numpy as np
 import sklearn.model_selection
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
-from transformers import BertForMaskedLM, BertTokenizer, AutoModelForSequenceClassification
+from transformers import BertTokenizer, AutoModelForSequenceClassification
 from transformers import get_scheduler, AdamW
 from sklearn.metrics import accuracy_score
 
@@ -60,7 +58,7 @@ def main():
 
         optimizer = AdamW(model.parameters(), lr=3e-5)
 
-        num_epochs = 1  # 5
+        num_epochs = 5
         num_training_steps = num_epochs * len(train_dataloader)
         num_warmup_steps = int(0.1*num_training_steps)
         lr_scheduler = get_scheduler(
