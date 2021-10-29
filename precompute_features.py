@@ -27,6 +27,8 @@ def main():
         if args.dataset_name == 'mixed':
             y_train[np.argwhere(y_train == 2).flatten()] = 0
             y_train[np.argwhere(y_train == 3).flatten()] = 1
+            y_test[np.argwhere(y_test == 2).flatten()] = 0
+            y_test[np.argwhere(y_test == 3).flatten()] = 1
 
         for name, array in zip(('X_train', 'y_train', 'X_test', 'y_test'), (X_train, y_train, X_test, y_test)):
             np.save(output_path / f'fold_{fold_idx}_{name}_{args.attribute}.npy', array)
