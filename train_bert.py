@@ -24,6 +24,11 @@ def main():
         docs_train = [str(docs[i]) for i in train_idx]
         docs_test = [str(docs[i]) for i in test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
+        if args.dataset_name == 'mixed':
+            y_train[np.argwhere(y_train == 2).flatten()] = 0
+            y_train[np.argwhere(y_train == 3).flatten()] = 1
+            y_test[np.argwhere(y_test == 2).flatten()] = 0
+            y_test[np.argwhere(y_test == 3).flatten()] = 1
         model = get_model(language=args.language)
         model = train_bert_model(docs_train, y_train, model)
         y_pred = model.predict(docs_test)
@@ -39,7 +44,7 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector'))
+    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector', 'mixed'))
     parser.add_argument('--language', type=str, choices=('eng', 'multi'), help='language BERT model was pretrained on')
     parser.add_argument('--attribute', choices=('text', 'title'), required=True)
 

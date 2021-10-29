@@ -35,18 +35,18 @@
 # python train_bert.py --dataset_name=bs_detector --language=multi --attribute=title
 
 
-python precompute_features.py --dataset_name=mixed --attribute=text --extraction_method=lda
-python precompute_features.py --dataset_name=mixed --attribute=text --extraction_method=tf_idf
-python precompute_features.py --dataset_name=mixed --attribute=title --extraction_method=lda
-python precompute_features.py --dataset_name=mixed --attribute=title --extraction_method=tf_idf
+# python precompute_features.py --dataset_name=mixed --attribute=text --extraction_method=lda
+# python precompute_features.py --dataset_name=mixed --attribute=text --extraction_method=tf_idf
+# python precompute_features.py --dataset_name=mixed --attribute=title --extraction_method=lda
+# python precompute_features.py --dataset_name=mixed --attribute=title --extraction_method=tf_idf
 
-python classify.py --dataset_name=mixed --attribute=text --extraction_method=lda
-python classify.py --dataset_name=mixed --attribute=text --extraction_method=tf_idf
-python classify.py --dataset_name=mixed --attribute=title --extraction_method=lda
-python classify.py --dataset_name=mixed --attribute=title --extraction_method=tf_idf
+# python classify.py --dataset_name=mixed --attribute=text --extraction_method=lda
+# python classify.py --dataset_name=mixed --attribute=text --extraction_method=tf_idf
+# python classify.py --dataset_name=mixed --attribute=title --extraction_method=lda
+# python classify.py --dataset_name=mixed --attribute=title --extraction_method=tf_idfk
 
-# python train_bert.py --dataset_name=mixed --language=eng --attribute=text
-# python train_bert.py --dataset_name=mixed --language=multi --attribute=text
-# python train_bert.py --dataset_name=mixed --language=eng --attribute=title
-# python train_bert.py --dataset_name=mixed --language=multi --attribute=title
+python train_bert.py --dataset_name=mixed --language=eng --attribute=text
+python train_bert.py --dataset_name=mixed --language=multi --attribute=text
+python train_bert.py --dataset_name=mixed --language=eng --attribute=title
+python train_bert.py --dataset_name=mixed --language=multi --attribute=title
 # TODO add BETO
