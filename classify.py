@@ -36,7 +36,7 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector'))
+    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector', 'mixed'))
     parser.add_argument('--attribute', choices=('text', 'title'), required=True)
     parser.add_argument('--extraction_method', type=str, choices=('lda', 'tf_idf'))
 

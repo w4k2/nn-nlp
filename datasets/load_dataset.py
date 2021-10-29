@@ -11,6 +11,8 @@ def load_dataset(dataset_name, attribute='text'):
         return load_esp_fake(attribute=attribute)
     elif dataset_name == 'bs_detector':
         return load_bs_detector(attribute=attribute)
+    elif dataset_name == 'mixed':
+        return load_mixed(attribute=attribute)
     else:
         raise ValueError('Invalid dataset name')
 
@@ -26,9 +28,9 @@ def load_esp_fake(attribute='text'):
 
 def convert_to_integer(label):
     if label in ('True', 'true', 'mostly-true', 'barely-true'):
-        return 1
-    elif label in ('Fake', 'false', 'half-true', 'pants-fire'):
         return 0
+    elif label in ('Fake', 'false', 'half-true', 'pants-fire'):
+        return 1
     else:
         raise Exception("Not recognized label in dataset! - %s", label)
 
@@ -51,4 +53,13 @@ def load_bs_detector(attribute='text'):
                          random_state=42)
     docs = X[resampled]
     labels = y[resampled]
+    return docs, labels
+
+
+def load_mixed(attribute='text'):
+    docs, labels = load_esp_fake(attribute=attribute)
+    bs_docs, bs_labels = load_bs_detector(attribute=attribute)
+    docs.extend(bs_docs)
+    bs_labels = bs_labels + 2  # add 2 to labels to ensure correct stratification in CV
+    labels = np.concatenate([labels, bs_labels], axis=0)
     return docs, labels

@@ -22,14 +22,17 @@ def main():
     for fold_idx, (train_idx, test_idx) in pbar:
         docs_train = [docs[i] for i in train_idx]
         docs_test = [docs[i] for i in test_idx]
+        X_train, X_test = extract_features(docs_train, docs_test, args)
         y_train, y_test = labels[train_idx], labels[test_idx]
-        X_train, X_test = extract_features(docs_train, y_train, docs_test, args)
+        if args.dataset_name == 'mixed':
+            y_train[np.argwhere(y_train == 2).flatten()] = 0
+            y_train[np.argwhere(y_train == 3).flatten()] = 1
 
         for name, array in zip(('X_train', 'y_train', 'X_test', 'y_test'), (X_train, y_train, X_test, y_test)):
             np.save(output_path / f'fold_{fold_idx}_{name}_{args.attribute}.npy', array)
 
 
-def extract_features(X_train, y_train, X_test, args):
+def extract_features(X_train, X_test, args):
     if args.extraction_method == 'lda':
         return lda.extract_features(X_train, X_test, num_features=args.num_features)
     elif args.extraction_method == 'tf_idf':
@@ -41,7 +44,7 @@ def extract_features(X_train, y_train, X_test, args):
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector'))
+    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector', 'mixed'))
     parser.add_argument('--attribute', choices=('text', 'title'), required=True)
     parser.add_argument('--extraction_method', type=str, choices=('lda', 'tf_idf'))
     parser.add_argument('--num_features', type=int, default=100)
