@@ -54,11 +54,11 @@ def parse_args():
 
 def get_model(language='eng'):
     preprocess_url_dict = {
-        'eng': "https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3",
+        'eng': "https://tfhub.dev/tensorflow/bert_en_cased_preprocess/3",
         'multi': "https://tfhub.dev/tensorflow/bert_multi_cased_preprocess/3"
     }
     model_url_dict = {
-        'eng': "https://tfhub.dev/tensorflow/small_bert/bert_en_uncased_L-4_H-512_A-8/1",
+        'eng': "https://tfhub.dev/tensorflow/bert_en_cased_L-12_H-768_A-12/4",
         'multi': "https://tfhub.dev/tensorflow/bert_multi_cased_L-12_H-768_A-12/4"
     }
     bert_preprocess_url = preprocess_url_dict[language]
