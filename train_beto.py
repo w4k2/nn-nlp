@@ -29,8 +29,7 @@ class TextDataset(torch.utils.data.Dataset):
 def main():
     args = parse_args()
 
-    dataset_name = 'esp_fake'
-    dataset_docs, dataset_labels = datasets.load_dataset(dataset_name)
+    dataset_docs, dataset_labels = datasets.load_dataset(args.dataset_name)
 
     acc_all = []
 
@@ -42,6 +41,11 @@ def main():
         dataset_docs_train = [dataset_docs[i] for i in train_idx]
         dataset_docs_test = [dataset_docs[i] for i in test_idx]
         y_train, y_test = dataset_labels[train_idx], dataset_labels[test_idx]
+        if args.dataset_name == 'mixed':
+            y_train[np.argwhere(y_train == 2).flatten()] = 0
+            y_train[np.argwhere(y_train == 3).flatten()] = 1
+            y_test[np.argwhere(y_test == 2).flatten()] = 0
+            y_test[np.argwhere(y_test == 3).flatten()] = 1
 
         tokenizer = BertTokenizer.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased', do_lower_case=False)
 
@@ -109,12 +113,13 @@ def main():
 
     output_path = pathlib.Path('results/')
     os.makedirs(output_path, exist_ok=True)
-    np.save(output_path / f'{dataset_name}_beto_{args.attribute}.npy', acc_all)
+    np.save(output_path / f'{args.dataset_name}_beto_{args.attribute}.npy', acc_all)
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'mixed'))
     parser.add_argument('--attribute', choices=('text', 'title'), required=True)
 
     args = parser.parse_args()
