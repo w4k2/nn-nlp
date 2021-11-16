@@ -15,7 +15,7 @@ dependencies:
   - tqdm
   - gin-config
   - pip
-  - tensorflow-gpu=2.2.0
+  - tensorflow-gpu=2.2.0 # CUDA Version: 11.5
   - tensorflow-hub
   - tensorflow-addons
   - pip:

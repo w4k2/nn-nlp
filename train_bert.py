@@ -31,6 +31,9 @@ def main():
             y_test[np.argwhere(y_test == 3).flatten()] = 1
         model = get_model(language=args.language)
         model = train_bert_model(docs_train, y_train, model)
+        checkpoint_path = f'./weights/bert_{args.language}/fold_{fold_idx}/bert'
+        model.save_weights(checkpoint_path)
+
         y_pred = model.predict(docs_test)
         accuracy = accuracy_score(y_test, y_pred.argmax(axis=1))
         print(f'fold {fold_idx} = {accuracy}')
@@ -108,4 +111,17 @@ def train_bert_model(x_train, y_train, model, init_lr=3e-5, epochs=5):
 
 
 if __name__ == '__main__':
+    # language = 'eng'
+    # model = get_model(language=language)
+    # checkpoint_path = f'./weights/bert_{language}/fold_{0}/bert'
+    # model.save_weights(checkpoint_path)
+    # new_model = get_model(language=language)
+    # new_model.load_weights(checkpoint_path)
+    # for layer, new_layer in zip(model.layers, new_model.layers):
+    #     for w, new_w in zip(layer.weights, new_layer.weights):
+    #         try:
+    #             assert w == new_w
+    #         except ValueError:
+    #             assert np.allclose(w, new_w)
+
     main()
