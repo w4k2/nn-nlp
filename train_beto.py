@@ -111,6 +111,8 @@ def main():
         print(f'fold {fold_idx} = {accuracy}')
         acc_all.append(accuracy)
 
+        model.save_pretrained(f'./weights/beto/{args.attribute}/fold_{fold_idx}/')
+
     output_path = pathlib.Path('results/')
     os.makedirs(output_path, exist_ok=True)
     np.save(output_path / f'{args.dataset_name}_beto_{args.attribute}.npy', acc_all)
@@ -127,4 +129,19 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    main()
+    model = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
+    model.save_pretrained(f'./weights/beto/fold_{0}/')
+    model_new = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
+    # model_new.from_pretrained(f'./weights/beto/fold_{0}/')
+    for (name, param), (_, new_param) in zip(model.named_modules(), model_new.named_modules()):
+        if name not in ['', 'bert', 'bert.embeddings',
+                        'bert.embeddings.word_embeddings',
+                        'bert.embeddings.position_embeddings',
+                        'bert.embeddings.token_type_embeddings',
+                        'bert.embeddings.LayerNorm',
+                        'bert.embeddings.dropout',
+                        'bert.encoder', 'bert.pooler.dense.weight', 'classifier.weight', 'classifier.bias', 'bert.pooler.dense.bias']:
+            print(name)
+            assert param == new_param
+    # assert model == model_new
+    # main()
