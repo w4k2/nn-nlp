@@ -129,19 +129,20 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    model = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
-    model.save_pretrained(f'./weights/beto/fold_{0}/')
-    model_new = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
-    # model_new.from_pretrained(f'./weights/beto/fold_{0}/')
-    for (name, param), (_, new_param) in zip(model.named_modules(), model_new.named_modules()):
-        if name not in ['', 'bert', 'bert.embeddings',
-                        'bert.embeddings.word_embeddings',
-                        'bert.embeddings.position_embeddings',
-                        'bert.embeddings.token_type_embeddings',
-                        'bert.embeddings.LayerNorm',
-                        'bert.embeddings.dropout',
-                        'bert.encoder', 'bert.pooler.dense.weight', 'classifier.weight', 'classifier.bias', 'bert.pooler.dense.bias']:
-            print(name)
-            assert param == new_param
+    # model = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
+    # model.save_pretrained(f'./weights/beto/fold_{0}/')
+    # model_new = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
+    # # model_new.from_pretrained(f'./weights/beto/fold_{0}/')
+    # for (name, param), (_, new_param) in zip(model.named_modules(), model_new.named_modules()):
+    #     if name not in ['', 'bert', 'bert.embeddings',
+    #                     'bert.embeddings.word_embeddings',
+    #                     'bert.embeddings.position_embeddings',
+    #                     'bert.embeddings.token_type_embeddings',
+    #                     'bert.embeddings.LayerNorm',
+    #                     'bert.embeddings.dropout',
+    #                     'bert.encoder', 'bert.pooler.dense.weight', 'classifier.weight', 'classifier.bias', 'bert.pooler.dense.bias']:
+    #         print(name)
+    #         assert param == new_param
     # assert model == model_new
-    # main()
+    
+    main()

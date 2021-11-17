@@ -1,8 +1,8 @@
 name: fake-news-gpu-pytorch
 channels:
+  - pytorch
   - anaconda
   - conda-forge
-  - pytorch
   - default
 dependencies:
   - smart_open
@@ -13,5 +13,5 @@ dependencies:
   - pandas
   - tqdm
   - transformers
+  - cudatoolkit=11.3
   - pytorch
-  - cudatoolkit
