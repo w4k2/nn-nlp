@@ -111,7 +111,7 @@ def main():
         print(f'fold {fold_idx} = {accuracy}')
         acc_all.append(accuracy)
 
-        model.save_pretrained(f'./weights/beto/{args.attribute}/fold_{fold_idx}/')
+        model.save_pretrained(f'./weights/beto/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/')
 
     output_path = pathlib.Path('results/')
     os.makedirs(output_path, exist_ok=True)
