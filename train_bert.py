@@ -31,7 +31,7 @@ def main():
             y_test[np.argwhere(y_test == 3).flatten()] = 1
         model = get_model(language=args.language)
         model = train_bert_model(docs_train, y_train, model)
-        checkpoint_path = f'./weights/bert_{args.language}/{args.attribute}/fold_{fold_idx}/bert'
+        checkpoint_path = f'./weights/bert_{args.language}/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/bert'
         model.save_weights(checkpoint_path)
 
         y_pred = model.predict(docs_test)
