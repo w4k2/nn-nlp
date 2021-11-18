@@ -1,0 +1,96 @@
+import argparse
+import torch
+import datasets
+import os
+import numpy as np
+import sklearn.model_selection
+from torch.utils.data import DataLoader
+from tqdm.auto import tqdm
+from transformers import BertTokenizer, AutoModelForSequenceClassification
+
+
+class TextDataset(torch.utils.data.Dataset):
+    def __init__(self, encodings, labels):
+        self.encodings = encodings
+        self.labels = labels
+
+    def __getitem__(self, idx):
+        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
+        item['labels'] = torch.tensor(self.labels[idx])
+        return item
+
+    def __len__(self):
+        return len(self.labels)
+
+
+def main():
+    args = parse_args()
+
+    dataset_docs, dataset_labels = datasets.load_dataset(args.dataset_name)
+
+    k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
+    pbar = tqdm(enumerate(k_fold.split(dataset_docs, dataset_labels)), desc='Fold feature extraction', total=10)
+    for fold_idx, (train_idx, test_idx) in pbar:
+        torch.cuda.empty_cache()
+
+        dataset_docs_test = [dataset_docs[i] for i in test_idx]
+        y_train, y_test = dataset_labels[train_idx], dataset_labels[test_idx]
+        if args.dataset_name == 'mixed':
+            y_train[np.argwhere(y_train == 2).flatten()] = 0
+            y_train[np.argwhere(y_train == 3).flatten()] = 1
+            y_test[np.argwhere(y_test == 2).flatten()] = 0
+            y_test[np.argwhere(y_test == 3).flatten()] = 1
+
+        tokenizer = BertTokenizer.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased', do_lower_case=False)
+        test_encodings = tokenizer(dataset_docs_test, truncation=True, padding=True)
+        test_dataset = TextDataset(test_encodings, y_test)
+        val_dataloader = DataLoader(test_dataset, shuffle=False, batch_size=8)
+
+        device = torch.device("cuda")
+        model = AutoModelForSequenceClassification.from_pretrained(f'./weights/beto/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/')
+        model.to(device)
+
+        model.eval()
+        test_preds = []
+        with torch.no_grad():
+            for batch in val_dataloader:
+                input_ids = batch['input_ids'].to(device)
+                attention_mask = batch['attention_mask'].to(device)
+                outputs = model(input_ids, attention_mask=attention_mask)
+                y_pred = outputs.logits.softmax(dim=1)
+                test_preds.append(y_pred.cpu().numpy())
+
+        test_preds = np.concatenate(test_preds, axis=0)
+        pred_filename = f'./predictions/beto/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
+        os.makedirs(os.path.dirname(pred_filename), exist_ok=True)
+        np.save(pred_filename, test_preds)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'mixed'))
+    parser.add_argument('--attribute', choices=('text', 'title'), required=True)
+
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == '__main__':
+    # model = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
+    # model.save_pretrained(f'./weights/beto/fold_{0}/')
+    # model_new = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
+    # # model_new.from_pretrained(f'./weights/beto/fold_{0}/')
+    # for (name, param), (_, new_param) in zip(model.named_modules(), model_new.named_modules()):
+    #     if name not in ['', 'bert', 'bert.embeddings',
+    #                     'bert.embeddings.word_embeddings',
+    #                     'bert.embeddings.position_embeddings',
+    #                     'bert.embeddings.token_type_embeddings',
+    #                     'bert.embeddings.LayerNorm',
+    #                     'bert.embeddings.dropout',
+    #                     'bert.encoder', 'bert.pooler.dense.weight', 'classifier.weight', 'classifier.bias', 'bert.pooler.dense.bias']:
+    #         print(name)
+    #         assert param == new_param
+    # assert model == model_new
+
+    main()
