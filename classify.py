@@ -3,6 +3,7 @@ import numpy as np
 import argparse
 import pathlib
 import os
+import pickle
 
 
 def main():
@@ -21,6 +22,13 @@ def main():
         y_test = np.load(data_path / f'fold_{fold_idx}_y_test_{args.attribute}.npy')
 
         model.fit(X_train, y_train)
+
+        filename = f'./weights/{args.extraction_method}/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/mlp.sav'
+        parent_path = os.path.dirname(filename)
+        os.makedirs(parent_path, exist_ok=True)
+        fp = open(filename, 'wb+')
+        pickle.dump(model, fp)
+
         accuracy = model.score(X_test, y_test)
         print(f'fold {fold_idx} = {accuracy}')
         acc_all.append(accuracy)
