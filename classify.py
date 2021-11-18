@@ -33,6 +33,11 @@ def main():
         print(f'fold {fold_idx} = {accuracy}')
         acc_all.append(accuracy)
 
+        y_pred = model.predict_proba(X_test)
+        pred_filename = f'./predictions/{args.extraction_method}/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
+        os.makedirs(os.path.dirname(pred_filename), exist_ok=True)
+        np.save(pred_filename, y_pred)
+
     avrg_acc = sum(acc_all) / len(acc_all)
     print(f'\naverage accuracy = {avrg_acc}')
 
