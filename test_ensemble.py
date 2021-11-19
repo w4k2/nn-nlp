@@ -1,6 +1,7 @@
 import datasets
 import argparse
 import os
+import pathlib
 import sklearn.model_selection
 import sklearn.neural_network
 import numpy as np
@@ -14,15 +15,22 @@ def main():
 
     acc_all = []
 
-    model_names = ('bert_eng', 'bert_multi', 'beto', 'lda', 'tf_idf')
+    models = {
+        'esp_fake': ('bert_multi', 'beto', 'lda', 'tf_idf'),
+        'bs_detector': ('bert_eng', 'bert_multi', 'lda', 'tf_idf'),
+        'mixed': ('bert_eng', 'bert_multi', 'beto', 'lda', 'tf_idf'),
+    }
 
     k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
     pbar = tqdm(enumerate(k_fold.split(docs, labels)), desc='Fold feature extraction', total=10)
     for fold_idx, (train_idx, test_idx) in pbar:
         _, y_test = labels[train_idx], labels[test_idx]
+        if args.dataset_name == 'mixed':
+            y_test[np.argwhere(y_test == 2).flatten()] = 0
+            y_test[np.argwhere(y_test == 3).flatten()] = 1
 
         model_predictions = []
-        for model_name in model_names:
+        for model_name in models[args.dataset_name]:
             pred_filename = f'./predictions/{model_name}/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
             pred = np.load(pred_filename)
             model_predictions.append(pred)
@@ -32,6 +40,10 @@ def main():
         accuracy = accuracy_score(y_test, y_pred)
         acc_all.append(accuracy)
         print(f'fold {fold_idx}, average models accuracy = {accuracy}')
+
+    output_path = pathlib.Path('results/')
+    os.makedirs(output_path, exist_ok=True)
+    np.save(output_path / f'{args.dataset_name}_ensemble_avrg_{args.attribute}.npy', acc_all)
 
 
 def parse_args():
