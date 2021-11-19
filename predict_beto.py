@@ -1,7 +1,9 @@
 import argparse
 import torch
+import torch.nn as nn
 import datasets
 import os
+import pathlib
 import numpy as np
 import sklearn.model_selection
 from torch.utils.data import DataLoader
@@ -33,6 +35,7 @@ def main():
     for fold_idx, (train_idx, test_idx) in pbar:
         torch.cuda.empty_cache()
 
+        dataset_docs_train = [dataset_docs[i] for i in train_idx]
         dataset_docs_test = [dataset_docs[i] for i in test_idx]
         y_train, y_test = dataset_labels[train_idx], dataset_labels[test_idx]
         if args.dataset_name == 'mixed':
@@ -42,28 +45,35 @@ def main():
             y_test[np.argwhere(y_test == 3).flatten()] = 1
 
         tokenizer = BertTokenizer.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased', do_lower_case=False)
+        train_encodings = tokenizer(dataset_docs_train, truncation=True, padding=True)
         test_encodings = tokenizer(dataset_docs_test, truncation=True, padding=True)
+        train_dataset = TextDataset(train_encodings, y_train)
         test_dataset = TextDataset(test_encodings, y_test)
+        train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=8)
         val_dataloader = DataLoader(test_dataset, shuffle=False, batch_size=8)
 
         device = torch.device("cuda")
         model = AutoModelForSequenceClassification.from_pretrained(f'./weights/beto/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/')
         model.to(device)
 
-        model.eval()
-        test_preds = []
-        with torch.no_grad():
-            for batch in val_dataloader:
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                outputs = model(input_ids, attention_mask=attention_mask)
-                y_pred = outputs.logits.softmax(dim=1)
-                test_preds.append(y_pred.cpu().numpy())
-
-        test_preds = np.concatenate(test_preds, axis=0)
+        test_preds, _ = collect_predictions(model, val_dataloader, device)
         pred_filename = f'./predictions/beto/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
         os.makedirs(os.path.dirname(pred_filename), exist_ok=True)
         np.save(pred_filename, test_preds)
+
+        model_features = AutoModelForSequenceClassification.from_pretrained(f'./weights/beto/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/')
+        model_features.dropout = nn.Identity()
+        model_features.classifier = nn.Identity()
+        model_features.to(device)
+
+        output_path = pathlib.Path(f'./extracted_features/{args.dataset_name}_beto/')
+        os.makedirs(output_path, exist_ok=True)
+        train_features, train_labels = collect_predictions(model_features, train_dataloader, device)
+        np.save(output_path / f'fold_{fold_idx}_X_train_{args.attribute}.npy', train_features)
+        np.save(output_path / f'fold_{fold_idx}_y_train_{args.attribute}.npy', train_labels)
+        test_features, test_labels = collect_predictions(model_features, val_dataloader, device)
+        np.save(output_path / f'fold_{fold_idx}_X_test_{args.attribute}.npy', test_features)
+        np.save(output_path / f'fold_{fold_idx}_y_test_{args.attribute}.npy', test_labels)
 
 
 def parse_args():
@@ -76,8 +86,25 @@ def parse_args():
     return args
 
 
+def collect_predictions(model, dataloader, device):
+    model.eval()
+    test_preds = []
+    test_labels = []
+    with torch.no_grad():
+        for batch in dataloader:
+            input_ids = batch['input_ids'].to(device)
+            attention_mask = batch['attention_mask'].to(device)
+            outputs = model(input_ids, attention_mask=attention_mask)
+            y_pred = outputs.logits.softmax(dim=1)
+            test_preds.append(y_pred.cpu().numpy())
+            test_labels.append(batch['labels'].numpy())
+    test_preds = np.concatenate(test_preds, axis=0)
+    test_labels = np.concatenate(test_labels, axis=0)
+    return test_preds, test_labels
+
 if __name__ == '__main__':
     # model = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
+    # print(model)
     # model.save_pretrained(f'./weights/beto/fold_{0}/')
     # model_new = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
     # # model_new.from_pretrained(f'./weights/beto/fold_{0}/')
