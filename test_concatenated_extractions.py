@@ -24,10 +24,10 @@ def get_extracted_features_and_labels(args, models, fold_idx, phase='train'):
             label_filename = f'./extracted_features/{args.dataset_name}_{model_name}/fold_{fold_idx}_y_{phase}_{args.attribute}.npy'
             label = np.load(label_filename)
             labels_from_file.append(label)
-        
         concatenated_extractions = np.concatenate(extraction_results, axis=1)
-        assert(np.array_equal(labels_from_file[0], labels_from_file[1])) # LDA and TF_IDF IS THE SAME
-        #assert(np.array_equal(labels_from_file[0], labels_from_file[2])) # BETO is different
+        for i in range(len(labels_from_file)-1):
+            if not np.array_equal(labels_from_file[0], labels_from_file[i+1]): # all labels should be the same
+                raise Exception(f'labels for {models[args.dataset_name][i+1]} extractions are different than the others!')
         return concatenated_extractions, labels_from_file[0]
 
 def main():
@@ -53,9 +53,9 @@ def main():
             y_test_from_cross_validation[np.argwhere(y_test_from_cross_validation == 3).flatten()] = 1
 
         X_train, y_train = get_extracted_features_and_labels(args, models, fold_idx, 'train')
-        #assert(np.array_equal(y_train, y_train_from_cross_validation)) #WHY IT DOES NOT WORK?
+        #assert(np.array_equal(y_train, y_train_from_cross_validation)) #IT WILL NOT WORK IN DIFFERENT ENVS
         X_test, y_test = get_extracted_features_and_labels(args, models, fold_idx, 'test')
-        #assert(np.array_equal(y_test, y_test_from_cross_validation)) #WHY IT DOES NOT WORK?
+        #assert(np.array_equal(y_test, y_test_from_cross_validation)) #IT WILL NOT WORK IN DIFFERENT ENVS
         number_of_models = len(models[args.dataset_name])
         feature_selector = SelectKBest(score_func=chi2, k=int(X_train.shape[1]/number_of_models))
         feature_selector.fit(X_train, y_train)
