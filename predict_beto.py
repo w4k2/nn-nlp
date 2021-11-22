@@ -49,8 +49,8 @@ def main():
         test_encodings = tokenizer(dataset_docs_test, truncation=True, padding=True)
         train_dataset = TextDataset(train_encodings, y_train)
         test_dataset = TextDataset(test_encodings, y_test)
-        train_dataloader = DataLoader(train_dataset, shuffle=False, batch_size=8)
-        val_dataloader = DataLoader(test_dataset, shuffle=False, batch_size=8)
+        train_dataloader = DataLoader(train_dataset, shuffle=False, batch_size=64, num_workers=4)
+        val_dataloader = DataLoader(test_dataset, shuffle=False, batch_size=64, num_workers=4)
 
         device = torch.device("cuda")
         model = AutoModelForSequenceClassification.from_pretrained(f'./weights/beto/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/')

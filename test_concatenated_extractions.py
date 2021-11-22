@@ -26,8 +26,6 @@ def get_extracted_features_and_labels(args, models, fold_idx, phase='train'):
             labels_from_file.append(label)
         concatenated_extractions = np.concatenate(extraction_results, axis=1)
         for i in range(1, len(labels_from_file)):
-            if models[args.dataset_name][i] == 'beto': # TODO remove this if after fixing beto
-                continue
             if not np.array_equal(labels_from_file[0], labels_from_file[i]): # all labels should be the same
                 raise Exception(f'labels for {models[args.dataset_name][i]} extractions are different than the others!')
         return concatenated_extractions, labels_from_file[0]
