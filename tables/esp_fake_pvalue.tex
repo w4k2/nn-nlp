@@ -1,21 +1,29 @@
-\begin{tabular}{|r|l|l|l|l|l|l|l|l|}
+\begin{tabular}{|r|l|l|l|l|l|l|l|l|l|l|l|l|}
   \hline
-  None & lda text & bert multi text & bert multi title & beto title & tf idf text & beto text & tf idf title & lda title \\ 
+  None & beto title & bert multi text & bert multi title & beto text & concat extraction model avrg text & concat extraction model avrg title & ensemble avrg text & ensemble avrg title & lda text & lda title & tf idf text & tf idf title \\ 
   \hline
-  lda text & None & 0.000 & 0.076 & 1.556e-05 & 0.000 & 2.924e-05 & 0.000 & 0.003 \\ 
+  beto title & None & 0.007 & 0.000 & 0.114 & 0.089 & 1.768e-06 & 3.526e-05 & 0.000 & 1.556e-05 & 4.659e-07 & 3.854e-05 & 7.603e-07 \\ 
   \hline
-  bert multi text & 0.000 & None & 0.002 & 0.007 & 0.072 & 0.015 & 1.911e-06 & 4.244e-05 \\ 
+  bert multi text & 0.007 & None & 0.002 & 0.004 & 0.007 & 0.001 & 0.000 & 0.001 & 0.000 & 4.244e-05 & 0.072 & 1.911e-06 \\ 
   \hline
-  bert multi title & 0.076 & 0.002 & None & 0.000 & 0.018 & 0.000 & 0.001 & 0.002 \\ 
+  bert multi title & 0.000 & 0.002 & None & 0.000 & 0.000 & 0.243 & 0.056 & 0.151 & 0.076 & 0.002 & 0.018 & 0.001 \\ 
   \hline
-  beto title & 1.556e-05 & 0.007 & 0.000 & None & 3.854e-05 & 0.229 & 7.603e-07 & 4.659e-07 \\ 
+  beto text & 0.114 & 0.004 & 0.000 & None & 0.103 & 3.367e-06 & 8.291e-06 & 4.539e-05 & 3.667e-05 & 1.593e-06 & 3.029e-05 & 1.481e-06 \\ 
   \hline
-  tf idf text & 0.000 & 0.072 & 0.018 & 3.854e-05 & None & 5.158e-06 & 1.067e-05 & 6.665e-07 \\ 
+  concat extraction model avrg text & 0.089 & 0.007 & 0.000 & 0.103 & None & 0.000 & 0.000 & 0.000 & 6.854e-06 & 3.744e-06 & 0.002 & 1.729e-07 \\ 
   \hline
-  beto text & 2.924e-05 & 0.015 & 0.000 & 0.229 & 5.158e-06 & None & 4.361e-06 & 1.879e-08 \\ 
+  concat extraction model avrg title & 1.768e-06 & 0.001 & 0.243 & 3.367e-06 & 0.000 & None & 0.008 & 0.118 & 0.023 & 7.179e-05 & 0.000 & 0.000 \\ 
   \hline
-  tf idf title & 0.000 & 1.911e-06 & 0.001 & 7.603e-07 & 1.067e-05 & 4.361e-06 & None & 0.019 \\ 
+  ensemble avrg text & 3.526e-05 & 0.000 & 0.056 & 8.291e-06 & 0.000 & 0.008 & None & 0.004 & 0.453 & 0.027 & 0.000 & 0.020 \\ 
   \hline
-  lda title & 0.003 & 4.244e-05 & 0.002 & 4.659e-07 & 6.665e-07 & 1.879e-08 & 0.019 & None \\ 
+  ensemble avrg title & 0.000 & 0.001 & 0.151 & 4.539e-05 & 0.000 & 0.118 & 0.004 & None & 0.005 & 0.000 & 0.024 & 3.650e-05 \\ 
+  \hline
+  lda text & 1.556e-05 & 0.000 & 0.076 & 3.667e-05 & 6.854e-06 & 0.023 & 0.453 & 0.005 & None & 0.003 & 0.000 & 0.000 \\ 
+  \hline
+  lda title & 4.659e-07 & 4.244e-05 & 0.002 & 1.593e-06 & 3.744e-06 & 7.179e-05 & 0.027 & 0.000 & 0.003 & None & 6.665e-07 & 0.019 \\ 
+  \hline
+  tf idf text & 3.854e-05 & 0.072 & 0.018 & 3.029e-05 & 0.002 & 0.000 & 0.000 & 0.024 & 0.000 & 6.665e-07 & None & 1.067e-05 \\ 
+  \hline
+  tf idf title & 7.603e-07 & 1.911e-06 & 0.001 & 1.481e-06 & 1.729e-07 & 0.000 & 0.020 & 3.650e-05 & 0.000 & 0.019 & 1.067e-05 & None \\ 
   \hline
 \end{tabular}

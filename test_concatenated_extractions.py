@@ -7,7 +7,7 @@ import sklearn.neural_network
 import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
-from sklearn.feature_selection import chi2
+from sklearn.feature_selection import mutual_info_classif
 from sklearn.feature_selection import SelectKBest
 # import sys
 # np.set_printoptions(threshold=sys.maxsize) # for table debugging
@@ -37,9 +37,9 @@ def main():
     acc_all = []
 
     models = {
-        'esp_fake': ('lda', 'tf_idf', 'beto'),
-        'bs_detector': ('lda', 'tf_idf'),
-        'mixed': ('lda', 'tf_idf', 'beto'),
+        'esp_fake': ('bert_multi', 'beto', 'lda', 'tf_idf'),
+        'bs_detector': ('bert_eng', 'bert_multi', 'lda', 'tf_idf'),
+        'mixed': ('bert_eng', 'bert_multi', 'beto', 'lda', 'tf_idf'),
     }
 
     k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
@@ -57,7 +57,7 @@ def main():
         X_test, y_test = get_extracted_features_and_labels(args, models, fold_idx, 'test')
         assert(np.array_equal(y_test, y_test_from_cross_validation)) #IT WILL NOT WORK IN DIFFERENT ENVS
         number_of_models = len(models[args.dataset_name])
-        feature_selector = SelectKBest(score_func=chi2, k=int(X_train.shape[1]/number_of_models))
+        feature_selector = SelectKBest(score_func=mutual_info_classif, k=int(X_train.shape[1]/number_of_models))
         feature_selector.fit(X_train, y_train)
         selected_X_train = feature_selector.transform(X_train)
         selected_X_test = feature_selector.transform(X_test)

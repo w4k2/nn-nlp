@@ -1,0 +1,51 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\begin{document}
+
+statistical significance level $ p < 0.05 $
+
+\begin{table}[]
+  \centering
+  \caption{Results for text attribute}
+
+  \begin{tabular}{|l|c|c|}
+  \hline
+  Extraction method & ensemble average (1) & concatenated extractions model (2)\\
+  \hline
+  Kaggle dataset     & 0.9876         & 0.9867  \\
+                & \small{-}     & \small{-}    \\
+  \hline
+  ESP fake      &  0.6168        & 0.8286        \\
+                & \small{-}     & \small{1}    \\
+  \hline
+  mixed datasets & 0.9869         & 0.9867       \\
+                & \small{-}   & \small{-}      \\
+  \hline
+
+\end{tabular}
+  \label{tab:results_text}
+\end{table}
+
+\begin{table}[]
+  \centering
+  \caption{Results for title attribute}
+
+  \begin{tabular}{|l|c|c|}
+  \hline
+  Extraction method & ensemble average (1) & concatenated extractions model (2)\\
+  \hline
+  Kaggle dataset     & 0.9541         & 0.9625  \\
+                & \small{-}     & \small{1}    \\
+  \hline
+  ESP fake      &  0.7065        & 0.6769        \\
+                & \small{-}     & \small{-}    \\
+  \hline
+  mixed datasets & 0.9685         & 0.9823       \\
+                & \small{-}   & \small{1}      \\
+  \hline
+
+\end{tabular}
+  \label{tab:results_title}
+\end{table}
+
+\end{document}

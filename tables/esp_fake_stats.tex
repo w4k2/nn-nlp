@@ -1,21 +1,29 @@
-\begin{tabular}{|r|l|l|l|l|l|l|l|l|}
+\begin{tabular}{|r|l|l|l|l|l|l|l|l|l|l|l|l|}
   \hline
-  None & lda text & bert multi text & bert multi title & beto title & tf idf text & beto text & tf idf title & lda title \\ 
+  None & beto title & bert multi text & bert multi title & beto text & concat extraction model avrg text & concat extraction model avrg title & ensemble avrg text & ensemble avrg title & lda text & lda title & tf idf text & tf idf title \\ 
   \hline
-  lda text & None & 50.111 & 3.797 & 146.934 & 54.789 & 113.931 & 49.367 & 15.486 \\ 
+  beto title & None & 11.735 & 65.764 & 3.052 & 3.502 & 352.198 & 105.625 & 63.821 & 146.934 & 601.150 & 101.896 & 494.036 \\ 
   \hline
-  bert multi text & 50.111 & None & 18.996 & 11.735 & 3.908 & 8.259 & 341.351 & 98.006 \\ 
+  bert multi text & 11.735 & None & 18.996 & 14.168 & 11.306 & 23.455 & 27.364 & 25.618 & 50.111 & 98.006 & 3.908 & 341.351 \\ 
   \hline
-  bert multi title & 3.797 & 18.996 & None & 65.764 & 7.656 & 39.957 & 25.296 & 17.752 \\ 
+  bert multi title & 65.764 & 18.996 & None & 56.058 & 28.013 & 1.924 & 4.462 & 2.596 & 3.797 & 17.752 & 7.656 & 25.296 \\ 
   \hline
-  beto title & 146.934 & 11.735 & 65.764 & None & 101.896 & 1.999 & 494.036 & 601.150 \\ 
+  beto text & 3.052 & 14.168 & 56.058 & None & 3.242 & 271.954 & 189.326 & 95.374 & 103.970 & 367.206 & 112.306 & 378.137 \\ 
   \hline
-  tf idf text & 54.789 & 3.908 & 7.656 & 101.896 & None & 229.132 & 171.032 & 520.804 \\ 
+  concat extraction model avrg text & 3.502 & 11.306 & 28.013 & 3.242 & None & 55.143 & 35.562 & 28.716 & 204.387 & 260.600 & 18.371 & 894.094 \\ 
   \hline
-  beto text & 113.931 & 8.259 & 39.957 & 1.999 & 229.132 & None & 245.103 & 2173.914 \\ 
+  concat extraction model avrg title & 352.198 & 23.455 & 1.924 & 271.954 & 55.143 & None & 10.733 & 3.001 & 6.749 & 79.215 & 35.072 & 46.409 \\ 
   \hline
-  tf idf title & 49.367 & 341.351 & 25.296 & 494.036 & 171.032 & 245.103 & None & 7.380 \\ 
+  ensemble avrg text & 105.625 & 27.364 & 4.462 & 189.326 & 35.562 & 10.733 & None & 13.891 & 1.180 & 6.334 & 40.960 & 7.247 \\ 
   \hline
-  lda title & 15.486 & 98.006 & 17.752 & 601.150 & 520.804 & 2173.914 & 7.380 & None \\ 
+  ensemble avrg title & 63.821 & 25.618 & 2.596 & 95.374 & 28.716 & 3.001 & 13.891 & None & 13.403 & 32.499 & 6.723 & 104.168 \\ 
+  \hline
+  lda text & 146.934 & 50.111 & 3.797 & 103.970 & 204.387 & 6.749 & 1.180 & 13.403 & None & 15.486 & 54.789 & 49.367 \\ 
+  \hline
+  lda title & 601.150 & 98.006 & 17.752 & 367.206 & 260.600 & 79.215 & 6.334 & 32.499 & 15.486 & None & 520.804 & 7.380 \\ 
+  \hline
+  tf idf text & 101.896 & 3.908 & 7.656 & 112.306 & 18.371 & 35.072 & 40.960 & 6.723 & 54.789 & 520.804 & None & 171.032 \\ 
+  \hline
+  tf idf title & 494.036 & 341.351 & 25.296 & 378.137 & 894.094 & 46.409 & 7.247 & 104.168 & 49.367 & 7.380 & 171.032 & None \\ 
   \hline
 \end{tabular}

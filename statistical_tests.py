@@ -23,25 +23,24 @@ def is_significant(value):
         return True
     return False
 
-def get_significance_table_from_pvalue(pvalue, attribute_name):
+def get_significance_table_from_pvalue(pvalue, list_of_models, attribute_name):
     significance_table = {}
-    for model_name in ('tf_idf', 'lda', 'bert_multi', 'bert_eng', 'beto'):
+    for model_name in list_of_models:
         significance_table[model_name] = {}
         extractor_index = get_index_of_given_model(model_name+'_' + attribute_name, pvalue[0])
-        for comparison_model in ('tf_idf', 'lda', 'bert_multi', 'bert_eng', 'beto'):
+        for comparison_model in list_of_models:
             comparison_index = get_index_of_given_model(comparison_model+'_' + attribute_name, pvalue[0])
             significance_table[model_name][comparison_model] = is_significant(pvalue[extractor_index][comparison_index])
     #print("SIGNIFICANCE: ", significance_table)
     return significance_table
 
-def perform_statistical_analysis(results, accuracies, attribute_name):
+def perform_statistical_analysis(results, accuracies, attribute_name, list_of_models):
     statistical_restult = {}
-    list_of_models = ['tf_idf', 'lda', 'bert_multi', 'bert_eng', 'beto']
     for dataset_name in ('bs_detector', 'esp_fake', 'mixed'):
         _, pvalue = statistical_tests_table(results, dataset_name)
         statistical_restult[dataset_name] = []
         accuracies_for_dataset = accuracies[dataset_name]
-        significance_table = get_significance_table_from_pvalue(pvalue, attribute_name)
+        significance_table = get_significance_table_from_pvalue(pvalue, list_of_models, attribute_name)
         for i, extractor_name in enumerate(list_of_models):
             current_accuracy = accuracies_for_dataset[i]
             statistical_restult[dataset_name].append([])
@@ -65,7 +64,8 @@ def perform_statistical_analysis_based_on_results(results):
     avrg_table_bs_detector = convert_table_to_dict(avrg_table_bs_detector)
     avrg_table_esp = convert_table_to_dict(avrg_table_esp)
     avrg_table_mixed = convert_table_to_dict(avrg_table_mixed)
-
+    
+    # comparison between extractors
     title_results = {"bs_detector" : [avrg_table_bs_detector['tf_idf_title'], avrg_table_bs_detector['lda_title'], avrg_table_bs_detector['bert_multi_title'], avrg_table_bs_detector['bert_eng_title'], 0],
                      "esp_fake" : [avrg_table_esp['tf_idf_title'], avrg_table_esp['lda_title'], avrg_table_esp['bert_multi_title'], 0, avrg_table_esp['beto_title']],
                      "mixed": [avrg_table_mixed['tf_idf_title'], avrg_table_mixed['lda_title'], avrg_table_mixed['bert_multi_title'], avrg_table_mixed['bert_eng_title'], avrg_table_mixed['beto_title']]}
@@ -73,8 +73,22 @@ def perform_statistical_analysis_based_on_results(results):
     text_results = {"bs_detector" : [avrg_table_bs_detector['tf_idf_text'], avrg_table_bs_detector['lda_text'], avrg_table_bs_detector['bert_multi_text'], avrg_table_bs_detector['bert_eng_text'], 0],
                     "esp_fake" : [avrg_table_esp['tf_idf_text'], avrg_table_esp['lda_text'], avrg_table_esp['bert_multi_text'], 0, avrg_table_esp['beto_text']],
                     "mixed": [avrg_table_mixed['tf_idf_text'], avrg_table_mixed['lda_text'], avrg_table_mixed['bert_multi_text'], avrg_table_mixed['bert_eng_text'], avrg_table_mixed['beto_text']]}
-    perform_statistical_analysis(results, text_results, 'text')
-    perform_statistical_analysis(results, title_results, 'title')
+    
+    list_of_models = ['tf_idf', 'lda', 'bert_multi', 'bert_eng', 'beto']
+    perform_statistical_analysis(results, text_results, 'text', list_of_models)
+    perform_statistical_analysis(results, title_results, 'title', list_of_models)
+
+    # comparison between ensemble and model trained on concatenated extractions 
+    text_results = {"bs_detector": [avrg_table_bs_detector['ensemble_avrg_text'], avrg_table_bs_detector['concat_extraction_model_avrg_text']],
+                     "esp_fake": [avrg_table_esp['ensemble_avrg_text'], avrg_table_esp['concat_extraction_model_avrg_text']],
+                     "mixed": [avrg_table_mixed['ensemble_avrg_text'], avrg_table_mixed['concat_extraction_model_avrg_text']]}
+    title_results = {"bs_detector": [avrg_table_bs_detector['ensemble_avrg_title'], avrg_table_bs_detector['concat_extraction_model_avrg_title']],
+                     "esp_fake": [avrg_table_esp['ensemble_avrg_title'], avrg_table_esp['concat_extraction_model_avrg_title']],
+                     "mixed": [avrg_table_mixed['ensemble_avrg_title'], avrg_table_mixed['concat_extraction_model_avrg_title']]}
+
+    list_of_models = ['ensemble_avrg', 'concat_extraction_model_avrg']
+    perform_statistical_analysis(results, text_results, 'text', list_of_models)
+    perform_statistical_analysis(results, title_results, 'title', list_of_models)
 
 def main():
     results = load_results()
