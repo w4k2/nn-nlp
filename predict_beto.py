@@ -49,7 +49,7 @@ def main():
         test_encodings = tokenizer(dataset_docs_test, truncation=True, padding=True)
         train_dataset = TextDataset(train_encodings, y_train)
         test_dataset = TextDataset(test_encodings, y_test)
-        train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=8)
+        train_dataloader = DataLoader(train_dataset, shuffle=False, batch_size=8)
         val_dataloader = DataLoader(test_dataset, shuffle=False, batch_size=8)
 
         device = torch.device("cuda")
