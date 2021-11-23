@@ -108,7 +108,7 @@ def main():
     list_of_models = ['tf_idf', 'lda', 'bert_multi', 'bert_eng', 'beto']
     perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models)
     
-    list_of_models = ['ensemble_avrg', 'concat_extraction_model_avrg']
+    list_of_models = ['ensemble_avrg', 'concat_extraction_model_avrg_mutual_info', 'concat_extraction_model_avrg_anova', 'concat_extraction_model_avrg_pca']
     perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models)
 
 def load_results():

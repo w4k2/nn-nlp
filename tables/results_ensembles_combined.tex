@@ -8,18 +8,18 @@ statistical significance level $ p < 0.05 $
   \centering
   \caption{Results for text attribute}
 
-  \begin{tabular}{|l|c|c|}
+  \begin{tabular}{|l|c|c|c|c|}
   \hline
-  Extraction method & ensemble average (1) & concatenated extractions model (2)\\
+  Extraction method & ensemble average (1) & concatenated mutual information (2) & concatenated anova (3) & concatenated pca (4) \\
   \hline
-  Kaggle dataset     & 0.9876         & 0.9867  \\
-                & \small{-}     & \small{-}    \\
+  Kaggle dataset     & 0.9877         & 0.9867         & 0.9872         & 0.9884  \\
+                     & \small{-}     & \small{-}     & \small{-}     & \small{2}    \\
   \hline
-  ESP fake      &  0.8435        & 0.8286        \\
-                & \small{-}     & \small{-}    \\
+  ESP fake      &  0.8435        & 0.8286   & 0.8266    & 0.8166       \\
+                & \small{4}     & \small{-}     & \small{-}     & \small{-}    \\
   \hline
-  mixed datasets & 0.9869         & 0.9867       \\
-                & \small{-}   & \small{-}      \\
+  mixed datasets & 0.9869         & 0.9867  & 0.9868  & 0.9805       \\
+                & \small{4}   & \small{4}   & \small{4}   & \small{-}      \\
   \hline
 
 \end{tabular}
@@ -30,18 +30,18 @@ statistical significance level $ p < 0.05 $
   \centering
   \caption{Results for title attribute}
 
-  \begin{tabular}{|l|c|c|}
+  \begin{tabular}{|l|c|c|c|c|}
   \hline
-  Extraction method & ensemble average (1) & concatenated extractions model (2)\\
+  Extraction method & ensemble average (1) & concatenated mutual information (2) & concatenated anova (3) & concatenated pca (4) \\
   \hline
-  Kaggle dataset     & 0.9541         & 0.9625  \\
-                & \small{-}     & \small{1}    \\
+  Kaggle dataset     & 0.9541         & 0.9624  & 0.9627  & 0.9645  \\
+                & \small{-}     & \small{1}     & \small{1}     & \small{1}    \\
   \hline
-  ESP fake      &  0.7325        & 0.6769        \\
-                & \small{2}     & \small{-}    \\
+  ESP fake      &  0.7325        & 0.6796 & 0.6766  & 0.6763      \\
+                & \small{2, 3, 4}     & \small{-}     & \small{-}     & \small{-}    \\
   \hline
-  mixed datasets & 0.9685         & 0.9823       \\
-                & \small{-}   & \small{1}      \\
+  mixed datasets & 0.9685         & 0.9823  & 0.9834  & 0.9521      \\
+                & \small{4}   & \small{1, 4}   & \small{1, 4}   & \small{-}      \\
   \hline
 
 \end{tabular}

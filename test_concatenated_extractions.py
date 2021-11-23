@@ -7,8 +7,9 @@ import sklearn.neural_network
 import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
-from sklearn.feature_selection import mutual_info_classif
+from sklearn.feature_selection import mutual_info_classif, f_classif
 from sklearn.feature_selection import SelectKBest
+from sklearn.decomposition import PCA
 # import sys
 # np.set_printoptions(threshold=sys.maxsize) # for table debugging
 # python test_concatenated_extractions.py --dataset_name esp_fake --attribute text
@@ -53,14 +54,27 @@ def main():
             y_test_from_cross_validation[np.argwhere(y_test_from_cross_validation == 3).flatten()] = 1
 
         X_train, y_train = get_extracted_features_and_labels(args, models, fold_idx, 'train')
-        assert(np.array_equal(y_train, y_train_from_cross_validation)) #IT WILL NOT WORK IN DIFFERENT ENVS
+        assert(np.array_equal(y_train, y_train_from_cross_validation))
         X_test, y_test = get_extracted_features_and_labels(args, models, fold_idx, 'test')
-        assert(np.array_equal(y_test, y_test_from_cross_validation)) #IT WILL NOT WORK IN DIFFERENT ENVS
+        assert(np.array_equal(y_test, y_test_from_cross_validation))
         number_of_models = len(models[args.dataset_name])
-        feature_selector = SelectKBest(score_func=mutual_info_classif, k=int(X_train.shape[1]/number_of_models))
-        feature_selector.fit(X_train, y_train)
-        selected_X_train = feature_selector.transform(X_train)
-        selected_X_test = feature_selector.transform(X_test)
+        num_features = X_train.shape[1] // number_of_models
+        if args.feature_selection == 'mutual_info':
+            feature_selector = SelectKBest(score_func=mutual_info_classif, k=num_features)
+            feature_selector.fit(X_train, y_train)
+            selected_X_train = feature_selector.transform(X_train)
+            selected_X_test = feature_selector.transform(X_test)
+        elif args.feature_selection == 'anova':
+            feature_selector = SelectKBest(score_func=f_classif, k=num_features)
+            feature_selector.fit(X_train, y_train)
+            selected_X_train = feature_selector.transform(X_train)
+            selected_X_test = feature_selector.transform(X_test)
+        else:
+            pca = PCA(n_components=min(num_features, len(X_train)))
+            pca.fit(X_train)
+            selected_X_train = pca.transform(X_train)
+            selected_X_test = pca.transform(X_test)
+
         model = sklearn.neural_network.MLPClassifier((500,500))
         model.fit(selected_X_train, y_train)
 
@@ -71,7 +85,7 @@ def main():
 
     output_path = pathlib.Path('results/')
     os.makedirs(output_path, exist_ok=True)
-    np.save(output_path / f'{args.dataset_name}_concat_extraction_model_avrg_{args.attribute}.npy', acc_all)
+    np.save(output_path / f'{args.dataset_name}_concat_extraction_model_avrg_{args.feature_selection}_{args.attribute}.npy', acc_all)
 
 
 def parse_args():
@@ -79,6 +93,7 @@ def parse_args():
 
     parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector', 'mixed'))
     parser.add_argument('--attribute', choices=('text', 'title'), required=True)
+    parser.add_argument('--feature_selection', type=str, choices=('anova', 'mutual_info', 'pca'))
 
     args = parser.parse_args()
     return args

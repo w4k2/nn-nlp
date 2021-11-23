@@ -1,29 +1,41 @@
-\begin{tabular}{|r|l|l|l|l|l|l|l|l|l|l|l|l|}
+\begin{tabular}{|r|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
   \hline
-  None & tf idf text & lda text & concat extraction model avrg text & concat extraction model avrg title & beto title & tf idf title & lda title & bert multi text & ensemble avrg title & bert multi title & ensemble avrg text & beto text \\ 
+  None & concat extraction model avrg anova text & tf idf text & lda text & concat extraction model avrg text & concat extraction model avrg title & concat extraction model avrg mutual info text & beto title & concat extraction model avrg anova title & tf idf title & concat extraction model avrg pca title & lda title & bert multi text & concat extraction model avrg mutual info title & ensemble avrg title & concat extraction model avrg pca text & bert multi title & ensemble avrg text & beto text \\ 
   \hline
-  tf idf text & None & 0.000 & 0.001 & 0.000 & 9.095e-07 & 9.361e-06 & 1.078e-05 & 0.036 & 0.079 & 0.006 & 7.643e-05 & 6.074e-06 \\ 
+  concat extraction model avrg anova text & None & 0.002 & 5.872e-05 & 0.271 & 0.000 & 0.358 & 0.081 & 0.000 & 1.830e-06 & 4.022e-05 & 3.423e-05 & 0.014 & 0.000 & 0.001 & 0.202 & 0.000 & 0.218 & 0.086 \\ 
   \hline
-  lda text & 0.000 & None & 2.020e-05 & 0.035 & 3.254e-05 & 0.002 & 0.072 & 0.000 & 0.005 & 0.074 & 7.188e-05 & 5.554e-05 \\ 
+  tf idf text & 0.002 & None & 0.000 & 0.001 & 0.000 & 0.002 & 9.095e-07 & 0.000 & 9.361e-06 & 0.000 & 1.078e-05 & 0.036 & 0.000 & 0.079 & 6.125e-05 & 0.006 & 7.643e-05 & 6.074e-06 \\ 
   \hline
-  concat extraction model avrg text & 0.001 & 2.020e-05 & None & 0.000 & 0.085 & 2.771e-07 & 3.585e-05 & 0.003 & 0.001 & 0.000 & 0.253 & 0.094 \\ 
+  lda text & 5.872e-05 & 0.000 & None & 2.020e-05 & 0.035 & 3.431e-05 & 3.254e-05 & 0.041 & 0.002 & 0.015 & 0.072 & 0.000 & 0.030 & 0.005 & 6.912e-05 & 0.074 & 7.188e-05 & 5.554e-05 \\ 
   \hline
-  concat extraction model avrg title & 0.000 & 0.035 & 0.000 & None & 6.438e-06 & 0.001 & 5.937e-06 & 0.003 & 0.016 & 0.293 & 9.047e-06 & 1.025e-05 \\ 
+  concat extraction model avrg text & 0.271 & 0.001 & 2.020e-05 & None & 0.000 & 0.121 & 0.085 & 0.000 & 2.771e-07 & 4.735e-05 & 3.585e-05 & 0.003 & 0.000 & 0.001 & 0.149 & 0.000 & 0.253 & 0.094 \\ 
   \hline
-  beto title & 9.095e-07 & 3.254e-05 & 0.085 & 6.438e-06 & None & 2.883e-06 & 1.203e-06 & 0.007 & 0.000 & 0.000 & 0.215 & 0.114 \\ 
+  concat extraction model avrg title & 0.000 & 0.000 & 0.035 & 0.000 & None & 0.000 & 6.438e-06 & 0.427 & 0.001 & 0.397 & 5.937e-06 & 0.003 & 0.439 & 0.016 & 2.768e-05 & 0.293 & 9.047e-06 & 1.025e-05 \\ 
   \hline
-  tf idf title & 9.361e-06 & 0.002 & 2.771e-07 & 0.001 & 2.883e-06 & None & 0.125 & 2.715e-07 & 6.146e-05 & 0.001 & 7.188e-06 & 3.862e-06 \\ 
+  concat extraction model avrg mutual info text & 0.358 & 0.002 & 3.431e-05 & 0.121 & 0.000 & None & 0.074 & 0.000 & 3.400e-07 & 7.273e-05 & 4.271e-05 & 0.002 & 0.000 & 0.000 & 0.245 & 0.000 & 0.191 & 0.071 \\ 
   \hline
-  lda title & 1.078e-05 & 0.072 & 3.585e-05 & 5.937e-06 & 1.203e-06 & 0.125 & None & 0.000 & 0.000 & 0.002 & 4.004e-07 & 3.161e-06 \\ 
+  beto title & 0.081 & 9.095e-07 & 3.254e-05 & 0.085 & 6.438e-06 & 0.074 & None & 1.826e-05 & 2.883e-06 & 5.269e-06 & 1.203e-06 & 0.007 & 2.431e-06 & 0.000 & 8.565e-05 & 0.000 & 0.215 & 0.114 \\ 
   \hline
-  bert multi text & 0.036 & 0.000 & 0.003 & 0.003 & 0.007 & 2.715e-07 & 0.000 & None & 0.006 & 0.002 & 0.016 & 0.004 \\ 
+  concat extraction model avrg anova title & 0.000 & 0.000 & 0.041 & 0.000 & 0.427 & 0.000 & 1.826e-05 & None & 0.001 & 0.389 & 2.189e-05 & 0.002 & 0.442 & 0.005 & 5.272e-05 & 0.297 & 3.777e-06 & 1.139e-05 \\ 
   \hline
-  ensemble avrg title & 0.079 & 0.005 & 0.001 & 0.016 & 0.000 & 6.146e-05 & 0.000 & 0.006 & None & 0.021 & 0.000 & 0.000 \\ 
+  tf idf title & 1.830e-06 & 9.361e-06 & 0.002 & 2.771e-07 & 0.001 & 3.400e-07 & 2.883e-06 & 0.001 & None & 0.000 & 0.125 & 2.715e-07 & 0.000 & 6.146e-05 & 2.393e-06 & 0.001 & 7.188e-06 & 3.862e-06 \\ 
   \hline
-  bert multi title & 0.006 & 0.074 & 0.000 & 0.293 & 0.000 & 0.001 & 0.002 & 0.002 & 0.021 & None & 0.000 & 0.000 \\ 
+  concat extraction model avrg pca title & 4.022e-05 & 0.000 & 0.015 & 4.735e-05 & 0.397 & 7.273e-05 & 5.269e-06 & 0.389 & 0.000 & None & 0.001 & 0.000 & 0.362 & 0.021 & 1.240e-05 & 0.134 & 0.000 & 8.279e-06 \\ 
   \hline
-  ensemble avrg text & 7.643e-05 & 7.188e-05 & 0.253 & 9.047e-06 & 0.215 & 7.188e-06 & 4.004e-07 & 0.016 & 0.000 & 0.000 & None & 0.223 \\ 
+  lda title & 3.423e-05 & 1.078e-05 & 0.072 & 3.585e-05 & 5.937e-06 & 4.271e-05 & 1.203e-06 & 2.189e-05 & 0.125 & 0.001 & None & 0.000 & 2.973e-05 & 0.000 & 2.648e-06 & 0.002 & 4.004e-07 & 3.161e-06 \\ 
   \hline
-  beto text & 6.074e-06 & 5.554e-05 & 0.094 & 1.025e-05 & 0.114 & 3.862e-06 & 3.161e-06 & 0.004 & 0.000 & 0.000 & 0.223 & None \\ 
+  bert multi text & 0.014 & 0.036 & 0.000 & 0.003 & 0.003 & 0.002 & 0.007 & 0.002 & 2.715e-07 & 0.000 & 0.000 & None & 0.002 & 0.006 & 0.035 & 0.002 & 0.016 & 0.004 \\ 
+  \hline
+  concat extraction model avrg mutual info title & 0.000 & 0.000 & 0.030 & 0.000 & 0.439 & 0.000 & 2.431e-06 & 0.442 & 0.000 & 0.362 & 2.973e-05 & 0.002 & None & 0.021 & 1.127e-05 & 0.212 & 2.304e-05 & 8.023e-06 \\ 
+  \hline
+  ensemble avrg title & 0.001 & 0.079 & 0.005 & 0.001 & 0.016 & 0.000 & 0.000 & 0.005 & 6.146e-05 & 0.021 & 0.000 & 0.006 & 0.021 & None & 0.001 & 0.021 & 0.000 & 0.000 \\ 
+  \hline
+  concat extraction model avrg pca text & 0.202 & 6.125e-05 & 6.912e-05 & 0.149 & 2.768e-05 & 0.245 & 8.565e-05 & 5.272e-05 & 2.393e-06 & 1.240e-05 & 2.648e-06 & 0.035 & 1.127e-05 & 0.001 & None & 0.000 & 0.021 & 0.003 \\ 
+  \hline
+  bert multi title & 0.000 & 0.006 & 0.074 & 0.000 & 0.293 & 0.000 & 0.000 & 0.297 & 0.001 & 0.134 & 0.002 & 0.002 & 0.212 & 0.021 & 0.000 & None & 0.000 & 0.000 \\ 
+  \hline
+  ensemble avrg text & 0.218 & 7.643e-05 & 7.188e-05 & 0.253 & 9.047e-06 & 0.191 & 0.215 & 3.777e-06 & 7.188e-06 & 0.000 & 4.004e-07 & 0.016 & 2.304e-05 & 0.000 & 0.021 & 0.000 & None & 0.223 \\ 
+  \hline
+  beto text & 0.086 & 6.074e-06 & 5.554e-05 & 0.094 & 1.025e-05 & 0.071 & 0.114 & 1.139e-05 & 3.862e-06 & 8.279e-06 & 3.161e-06 & 0.004 & 8.023e-06 & 0.000 & 0.003 & 0.000 & 0.223 & None \\ 
   \hline
 \end{tabular}
