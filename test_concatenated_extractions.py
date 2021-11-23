@@ -59,6 +59,7 @@ def main():
         assert(np.array_equal(y_test, y_test_from_cross_validation))
         number_of_models = len(models[args.dataset_name])
         num_features = X_train.shape[1] // number_of_models
+
         if args.feature_selection == 'mutual_info':
             feature_selector = SelectKBest(score_func=mutual_info_classif, k=num_features)
             feature_selector.fit(X_train, y_train)
@@ -70,7 +71,13 @@ def main():
             selected_X_train = feature_selector.transform(X_train)
             selected_X_test = feature_selector.transform(X_test)
         else:
-            pca = PCA(n_components=min(num_features, len(X_train)))
+            preliminary_pca = PCA(n_components=min(num_features, len(X_train)))
+            preliminary_pca.fit(X_train)
+            # print(pca.explained_variance_ratio_)
+            cumulative = np.cumsum(preliminary_pca.explained_variance_ratio_)
+            indexes = np.argwhere(cumulative > 0.9)
+            num_pca_features = indexes.min() + 1
+            pca = PCA(n_components=num_pca_features)
             pca.fit(X_train)
             selected_X_train = pca.transform(X_train)
             selected_X_test = pca.transform(X_test)
