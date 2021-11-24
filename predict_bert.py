@@ -14,14 +14,17 @@ from utils.adamw_optimizer import create_optimizer
 
 def main():
     args = parse_args()
-    docs, labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
-
-    k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
-    pbar = tqdm(enumerate(k_fold.split(docs, labels)), desc='Fold feature extraction', total=10)
-    for fold_idx, (train_idx, test_idx) in pbar:
-        docs_train = [str(docs[i]) for i in train_idx]
-        docs_test = [str(docs[i]) for i in test_idx]
-        y_train, y_test = labels[train_idx], labels[test_idx]
+    predict_docs, predict_labels = datasets.load_dataset(args.prediction_dataset, attribute=args.attribute)
+    model_training_docs, model_training_labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
+    k_fold_training = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
+    training_split = k_fold_training.split(model_training_docs, model_training_labels)
+    k_fold_predict = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
+    pbar = tqdm(enumerate(k_fold_predict.split(predict_docs, predict_labels)), desc='Fold feature extraction', total=10)
+    for fold_idx, (_, test_idx) in pbar:
+        train_idx, _ = next(training_split)
+        docs_train = [str(model_training_docs[i]) for i in train_idx]
+        docs_test = [str(predict_docs[i]) for i in test_idx]
+        y_train, y_test = model_training_labels[train_idx], predict_labels[test_idx]
         if args.dataset_name == 'mixed':
             y_train[np.argwhere(y_train == 2).flatten()] = 0
             y_train[np.argwhere(y_train == 3).flatten()] = 1
@@ -41,7 +44,7 @@ def main():
         checkpoint_path = f'./weights/bert_{args.language}/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/bert'
         model_features.load_weights(checkpoint_path)
 
-        output_path = pathlib.Path(f'extracted_features/{args.dataset_name}_bert_{args.language}')
+        output_path = pathlib.Path(f'extracted_features/{args.dataset_name}_bert_{args.language}_{args.prediction_dataset}')
         os.makedirs(output_path, exist_ok=True)
         y_pred = model_features.predict(docs_train)
         np.save(output_path / f'fold_{fold_idx}_X_train_{args.attribute}.npy', y_pred)
@@ -57,6 +60,7 @@ def parse_args():
     parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector', 'mixed'))
     parser.add_argument('--language', type=str, choices=('eng', 'multi'), help='language BERT model was pretrained on')
     parser.add_argument('--attribute', choices=('text', 'title'), required=True)
+    parser.add_argument('--prediction_dataset', choices=('esp_fake', 'bs_detector', 'mixed'), required=True)
 
     args = parser.parse_args()
     return args
@@ -89,34 +93,6 @@ def get_keras_model(bert_preprocess_url, bert_model_url, add_classifier=True):
         out = tf.keras.layers.Dense(2, activation='softmax', name='classifier')(out)
     model = tf.keras.Model(text_input, out)
     return model
-
-
-def train_bert_model(x_train, y_train, model, init_lr=3e-5, epochs=5):
-    y_train_c = tf.keras.utils.to_categorical(y_train)
-    x_train_c = np.asarray(x_train)
-
-    loss = tf.keras.losses.CategoricalCrossentropy(from_logits=False)
-    metrics = tf.metrics.CategoricalAccuracy()
-    steps_per_epoch = np.sqrt(len(x_train))
-    num_train_steps = steps_per_epoch * epochs
-    num_warmup_steps = int(0.1*num_train_steps)
-
-    optimizer = create_optimizer(
-        init_lr=init_lr,
-        num_train_steps=num_train_steps,
-        num_warmup_steps=num_warmup_steps,
-        optimizer_type='adamw'
-    )
-    model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
-    model.fit(
-        x=x_train_c,
-        y=y_train_c,
-        epochs=epochs,
-        batch_size=32,
-    )
-
-    return model
-
 
 if __name__ == '__main__':
     main()

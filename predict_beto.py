@@ -28,16 +28,19 @@ class TextDataset(torch.utils.data.Dataset):
 def main():
     args = parse_args()
 
-    dataset_docs, dataset_labels = datasets.load_dataset(args.dataset_name)
-
+    dataset_docs, dataset_labels = datasets.load_dataset(args.prediction_dataset)
+    model_training_docs, model_training_labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
+    k_fold_training = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
+    training_split = k_fold_training.split(model_training_docs, model_training_labels)
     k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
     pbar = tqdm(enumerate(k_fold.split(dataset_docs, dataset_labels)), desc='Fold feature extraction', total=10)
-    for fold_idx, (train_idx, test_idx) in pbar:
+    for fold_idx, (_, test_idx) in pbar:
         torch.cuda.empty_cache()
+        train_idx, _ = next(training_split)
 
-        dataset_docs_train = [dataset_docs[i] for i in train_idx]
+        dataset_docs_train = [model_training_docs[i] for i in train_idx]
         dataset_docs_test = [dataset_docs[i] for i in test_idx]
-        y_train, y_test = dataset_labels[train_idx], dataset_labels[test_idx]
+        y_train, y_test = model_training_labels[train_idx], dataset_labels[test_idx]
         if args.dataset_name == 'mixed':
             y_train[np.argwhere(y_train == 2).flatten()] = 0
             y_train[np.argwhere(y_train == 3).flatten()] = 1
@@ -66,7 +69,7 @@ def main():
         model_features.classifier = nn.Identity()
         model_features.to(device)
 
-        output_path = pathlib.Path(f'./extracted_features/{args.dataset_name}_beto/')
+        output_path = pathlib.Path(f'./extracted_features/{args.dataset_name}_beto_{args.prediction_dataset}/')
         os.makedirs(output_path, exist_ok=True)
         train_features, train_labels = collect_predictions(model_features, train_dataloader, device)
         np.save(output_path / f'fold_{fold_idx}_X_train_{args.attribute}.npy', train_features)
@@ -81,6 +84,7 @@ def parse_args():
 
     parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'mixed'))
     parser.add_argument('--attribute', choices=('text', 'title'), required=True)
+    parser.add_argument('--prediction_dataset', choices=('esp_fake', 'bs_detector', 'mixed'), required=True)
 
     args = parser.parse_args()
     return args
