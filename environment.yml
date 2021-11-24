@@ -13,3 +13,4 @@ dependencies:
   - pandas
   - tqdm
   - prettytable
+  - seaborn
