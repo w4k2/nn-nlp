@@ -5,15 +5,22 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import RegexpTokenizer
 
 
-def extract_features(train_docs, test_docs, num_features=100):
-    # TODO add LDA hyperparameter tuning
-    model, train_bow, dictionary = train_lda_model(train_docs, num_topics=num_features)
-    train_features, _ = model.inference(train_bow)
-    test_docs = tokenize(test_docs)
-    test_bow = [dictionary.doc2bow(doc) for doc in test_docs]
-    test_features, _ = model.inference(test_bow)
-    return train_features, test_features
+class LDA:
+    def __init__(self, num_features):
+        self.num_features = num_features
+        self.model = None
+        self.dictionary = None
 
+    def fit(self, docs):
+        self.model, _, self.dictionary = train_lda_model(docs, num_topics=self.num_features)
+
+    def transform(self, docs):
+        if self.model == None or self.dictionary == None:
+            raise ValueError('transform called before fit')
+        tokenized_docs = tokenize(docs)
+        test_bow = [self.dictionary.doc2bow(doc) for doc in tokenized_docs]
+        features, _ = self.model.inference(test_bow)
+        return features
 
 def train_lda_model(docs, num_topics=100):
     docs = tokenize(docs)
