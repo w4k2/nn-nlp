@@ -13,18 +13,17 @@ from utils.adamw_optimizer import create_optimizer
 
 
 def main():
+    tf.get_logger().setLevel('ERROR') # tensorflow prints a lot of warnings due to lack of optimizer in this script
     args = parse_args()
-    predict_docs, predict_labels = datasets.load_dataset(args.prediction_dataset, attribute=args.attribute)
-    model_training_docs, model_training_labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
-    k_fold_training = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
-    training_split = k_fold_training.split(model_training_docs, model_training_labels)
-    k_fold_predict = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
-    pbar = tqdm(enumerate(k_fold_predict.split(predict_docs, predict_labels)), desc='Fold feature extraction', total=10)
-    for fold_idx, (_, test_idx) in pbar:
-        train_idx, _ = next(training_split)
-        docs_train = [str(model_training_docs[i]) for i in train_idx]
-        docs_test = [str(predict_docs[i]) for i in test_idx]
-        y_train, y_test = model_training_labels[train_idx], predict_labels[test_idx]
+    print(args)
+    docs, labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
+
+    k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
+    pbar = tqdm(enumerate(k_fold.split(docs, labels)), desc='Fold feature extraction', total=10)
+    for fold_idx, (train_idx, test_idx) in pbar:
+        docs_train = [str(docs[i]) for i in train_idx]
+        docs_test = [str(docs[i]) for i in test_idx]
+        y_train, y_test = labels[train_idx], labels[test_idx]
         if args.dataset_name == 'mixed':
             y_train[np.argwhere(y_train == 2).flatten()] = 0
             y_train[np.argwhere(y_train == 3).flatten()] = 1
@@ -32,19 +31,19 @@ def main():
             y_test[np.argwhere(y_test == 3).flatten()] = 1
 
         model = get_model(language=args.language)
-        checkpoint_path = f'./weights/bert_{args.language}/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/bert'
+        checkpoint_path = f'./weights/bert_{args.language}/{args.train_dataset_name}/{args.attribute}/fold_{fold_idx}/bert'
         model.load_weights(checkpoint_path)
 
         y_pred = model.predict(docs_test)
-        pred_filename = f'./predictions/bert_{args.language}/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
+        pred_filename = f'./predictions/bert_{args.language}/{args.train_dataset_name}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
         os.makedirs(os.path.dirname(pred_filename), exist_ok=True)
         np.save(pred_filename, y_pred)
 
         model_features = get_model(language=args.language, add_classifier=False)
-        checkpoint_path = f'./weights/bert_{args.language}/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/bert'
+        checkpoint_path = f'./weights/bert_{args.language}/{args.train_dataset_name}/{args.attribute}/fold_{fold_idx}/bert'
         model_features.load_weights(checkpoint_path)
 
-        output_path = pathlib.Path(f'extracted_features/{args.dataset_name}_bert_{args.language}_{args.prediction_dataset}')
+        output_path = pathlib.Path(f'extracted_features/{args.train_dataset_name}_bert_{args.language}_{args.dataset_name}')
         os.makedirs(output_path, exist_ok=True)
         y_pred = model_features.predict(docs_train)
         np.save(output_path / f'fold_{fold_idx}_X_train_{args.attribute}.npy', y_pred)
@@ -57,10 +56,10 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector', 'mixed'))
+    parser.add_argument('--train_dataset_name', choices=('esp_fake', 'bs_detector', 'mixed'), required=True, help='dataset model was trained on')
+    parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector', 'mixed'), help='currently processed dataset')
     parser.add_argument('--language', type=str, choices=('eng', 'multi'), help='language BERT model was pretrained on')
     parser.add_argument('--attribute', choices=('text', 'title'), required=True)
-    parser.add_argument('--prediction_dataset', choices=('esp_fake', 'bs_detector', 'mixed'), required=True)
 
     args = parser.parse_args()
     return args
