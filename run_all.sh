@@ -1,10 +1,10 @@
 #! /bin/bash
 
 
-# python precompute_features.py --dataset_name=esp_fake --attribute=text --extraction_method=lda
-# python precompute_features.py --dataset_name=esp_fake --attribute=text --extraction_method=tf_idf
-# python precompute_features.py --dataset_name=esp_fake --attribute=title --extraction_method=lda
-# python precompute_features.py --dataset_name=esp_fake --attribute=title --extraction_method=tf_idf
+python precompute_features.py --dataset_name=esp_fake --attribute=text --extraction_method=lda
+python precompute_features.py --dataset_name=esp_fake --attribute=text --extraction_method=tf_idf
+python precompute_features.py --dataset_name=esp_fake --attribute=title --extraction_method=lda
+python precompute_features.py --dataset_name=esp_fake --attribute=title --extraction_method=tf_idf
 
 python classify.py --train_dataset_name=esp_fake --dataset_name=esp_fake --attribute=text --extraction_method=lda
 python classify.py --train_dataset_name=esp_fake --dataset_name=bs_detector --attribute=text --extraction_method=lda
@@ -27,10 +27,10 @@ python classify.py --train_dataset_name=esp_fake --dataset_name=mixed --attribut
 # python train_bert.py --dataset_name=esp_fake --dataset_name=esp_fake --language=multi --attribute=title
 
 
-# python precompute_features.py --dataset_name=bs_detector --attribute=text --extraction_method=lda
-# python precompute_features.py --dataset_name=bs_detector --attribute=text --extraction_method=tf_idf
-# python precompute_features.py --dataset_name=bs_detector --attribute=title --extraction_method=lda
-# python precompute_features.py --dataset_name=bs_detector --attribute=title --extraction_method=tf_idf
+python precompute_features.py --dataset_name=bs_detector --attribute=text --extraction_method=lda
+python precompute_features.py --dataset_name=bs_detector --attribute=text --extraction_method=tf_idf
+python precompute_features.py --dataset_name=bs_detector --attribute=title --extraction_method=lda
+python precompute_features.py --dataset_name=bs_detector --attribute=title --extraction_method=tf_idf
 
 python classify.py --train_dataset_name=bs_detector --dataset_name=esp_fake --attribute=text --extraction_method=lda
 python classify.py --train_dataset_name=bs_detector --dataset_name=bs_detector --attribute=text --extraction_method=lda
@@ -51,10 +51,10 @@ python classify.py --train_dataset_name=bs_detector --dataset_name=mixed --attri
 # python train_bert.py --dataset_name=bs_detector --language=multi --attribute=title
 
 
-# python precompute_features.py --dataset_name=mixed --attribute=text --extraction_method=lda
-# python precompute_features.py --dataset_name=mixed --attribute=text --extraction_method=tf_idf
-# python precompute_features.py --dataset_name=mixed --attribute=title --extraction_method=lda
-# python precompute_features.py --dataset_name=mixed --attribute=title --extraction_method=tf_idf
+python precompute_features.py --dataset_name=mixed --attribute=text --extraction_method=lda
+python precompute_features.py --dataset_name=mixed --attribute=text --extraction_method=tf_idf
+python precompute_features.py --dataset_name=mixed --attribute=title --extraction_method=lda
+python precompute_features.py --dataset_name=mixed --attribute=title --extraction_method=tf_idf
 
 python classify.py --train_dataset_name=mixed --dataset_name=esp_fake --attribute=text --extraction_method=lda
 python classify.py --train_dataset_name=mixed --dataset_name=bs_detector --attribute=text --extraction_method=lda

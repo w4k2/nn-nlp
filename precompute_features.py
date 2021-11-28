@@ -1,4 +1,5 @@
 import argparse
+from scipy.sparse import data
 import sklearn.model_selection
 import numpy as np
 import os
@@ -14,22 +15,25 @@ import tf_idf
 def main():
     args = parse_args()
 
-    all_datasets = {}
+    loaded_datasets = {}
+    fold_indexes = {}
     k_fold = sklearn.model_selection.RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=42)
     for dataset_name in ('esp_fake', 'bs_detector', 'mixed'):
         docs, labels = datasets.load_dataset(dataset_name, attribute=args.attribute)
+        loaded_datasets[dataset_name] = docs, labels
         indexes = k_fold.split(docs, labels)
         train_idx, test_idx = zip(*indexes)
-        all_datasets[dataset_name] = train_idx, test_idx
+        fold_indexes[dataset_name] = train_idx, test_idx
 
     pbar = tqdm(range(10), desc='Fold feature extraction', total=10)
     for fold_idx in pbar:
-        train_data_idx = all_datasets[args.dataset_name][0][fold_idx]
+        train_data_idx = fold_indexes[args.dataset_name][0][fold_idx]
         model = get_model(args)
         docs_train = [docs[i] for i in train_data_idx]
         model.fit(docs_train)
 
-        for dataset_name, (train_idx, test_idx) in all_datasets.items():
+        for dataset_name, (train_idx, test_idx) in fold_indexes.items():
+            docs, labels = loaded_datasets[dataset_name]
             docs_train = [docs[i] for i in train_idx[fold_idx]]
             docs_test = [docs[i] for i in test_idx[fold_idx]]
             X_train = model.transform(docs_train)
@@ -38,12 +42,15 @@ def main():
                 X_train = X_train.toarray()
                 X_test = X_test.toarray()
             y_train, y_test = labels[train_idx[fold_idx]], labels[test_idx[fold_idx]]
-            if args.dataset_name == 'mixed':
+            if dataset_name == 'mixed':
                 y_train[np.argwhere(y_train == 2).flatten()] = 0
                 y_train[np.argwhere(y_train == 3).flatten()] = 1
                 y_test[np.argwhere(y_test == 2).flatten()] = 0
                 y_test[np.argwhere(y_test == 3).flatten()] = 1
-            
+
+            assert X_train.shape[0] == y_train.shape[0]
+            assert X_test.shape[0] == y_test.shape[0]
+
             output_path = pathlib.Path(f'extracted_features/{args.dataset_name}_{args.extraction_method}_{dataset_name}')
             os.makedirs(output_path, exist_ok=True)
 
@@ -58,6 +65,7 @@ def get_model(args):
         return TfidfVectorizer(max_features=args.num_features)
     else:
         raise ValueError('Invalid extraction method')
+
 
 def extract_features(X_train, X_test, args):
     if args.extraction_method == 'lda':

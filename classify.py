@@ -35,6 +35,7 @@ def main():
         acc_all.append(accuracy)
 
         y_pred = model.predict_proba(X_test)
+        assert y_pred.shape[1] == 2
         pred_filename = f'./predictions/{args.extraction_method}/{args.train_dataset_name}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
         os.makedirs(os.path.dirname(pred_filename), exist_ok=True)
         np.save(pred_filename, y_pred)

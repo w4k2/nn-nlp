@@ -56,6 +56,9 @@ def main():
                     pred_filename = f'./predictions/{model_name}/{train_dataset}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
                     pred = np.load(pred_filename)
                     model_predictions.append(pred)
+                    print('train_dataset = ', train_dataset)
+                    print('args.dataset_name = ', args.dataset_name)
+                    print('model_name = ', model_name)
                     print(pred.shape)
                 model_predictions = np.stack(model_predictions)
                 average_predictions = np.mean(model_predictions, axis=0, keepdims=False)
