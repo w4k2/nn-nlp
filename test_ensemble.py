@@ -11,6 +11,7 @@ from sklearn.metrics import accuracy_score
 
 def main():
     args = parse_args()
+    print(args)
     docs, labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
 
     acc_all = []
@@ -55,11 +56,13 @@ def main():
                     pred_filename = f'./predictions/{model_name}/{train_dataset}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
                     pred = np.load(pred_filename)
                     model_predictions.append(pred)
+                    print(pred.shape)
                 model_predictions = np.stack(model_predictions)
                 average_predictions = np.mean(model_predictions, axis=0, keepdims=False)
                 y_pred = np.argmax(average_predictions, axis=1)
                 accuracy = accuracy_score(y_test, y_pred)
                 acc_all.append(accuracy)
+                print(f'fold {fold_idx}, average models accuracy = {accuracy}')
         elif args.mode == '12M':
             model_predictions = []
             for model_name in models[args.dataset_name]:
@@ -72,6 +75,7 @@ def main():
             y_pred = np.argmax(average_predictions, axis=1)
             accuracy = accuracy_score(y_test, y_pred)
             acc_all.append(accuracy)
+            print(f'fold {fold_idx}, average models accuracy = {accuracy}')
 
     output_path = pathlib.Path('results/')
     os.makedirs(output_path, exist_ok=True)
