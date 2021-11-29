@@ -17,6 +17,8 @@ from sklearn.decomposition import PCA
 
 def main():
     args = parse_args()
+    print(args)
+
     docs, labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
     models = {
         'esp_fake': ('bert_multi', 'beto', 'lda', 'tf_idf'),
