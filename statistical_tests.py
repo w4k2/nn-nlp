@@ -34,9 +34,56 @@ def get_significance_table_from_pvalue(pvalue, list_of_models, attribute_name):
     #print("SIGNIFICANCE: ", significance_table)
     return significance_table
 
+def strip_model_name(name):
+    result = ""
+    for word in name.split(" "):
+        result+=word[:4] + " "
+    splitted_result = result.split(" ")
+    if(len(splitted_result) > 3):
+        new_result = splitted_result[0][0] + splitted_result[1][0] + splitted_result[2][0]
+        for rest in splitted_result[3:]:
+            new_result += " " + rest
+        result = new_result
+    return result
+
+def print_latex_results(list_of_datasets, attribute_name, list_of_models, accuracies, statistical_restult):
+    print("\\begin{table}[]")
+    print("\centering")
+    print("\caption{Results for ", attribute_name, " attribute}")
+    print("\\begin{tabular}{|l|", end="")
+    for i in range(len(list_of_models)):
+        print("c|", end="")
+    print("}")
+
+    print("\hline")
+    print("Extraction method ", end="")
+    for model in list_of_models:
+        print(" & ", strip_model_name(model.replace("_", " ")), end="")
+    print("  \\\\")
+    print("\hline")
+    for dataset in list_of_datasets:
+        print(dataset.replace("_", " "), end="")
+        for i, model in enumerate(list_of_models):
+            print(" & ", round(accuracies[dataset][i], 3), end="")
+        print("  \\\\")
+        for i, model in enumerate(list_of_models):
+            print(" & \small{", end="")
+            worse_models = statistical_restult[dataset][i]
+            if len(worse_models) == 0:
+                print("-", end="")
+            else:
+                for worse_model in worse_models:
+                    print(worse_model, end=" ")
+            print("} ", end="")
+        print("  \\\\")
+        print("\hline")
+    print("\end{tabular}")
+    print("\end{table}")
+
 def perform_statistical_analysis(results, accuracies, attribute_name, list_of_models):
     statistical_restult = {}
-    for dataset_name in ('bs_detector', 'esp_fake', 'mixed'):
+    list_of_datasets = ('bs_detector', 'esp_fake', 'mixed')
+    for dataset_name in list_of_datasets:
         _, pvalue = statistical_tests_table(results, dataset_name)
         statistical_restult[dataset_name] = []
         accuracies_for_dataset = accuracies[dataset_name]
@@ -55,6 +102,7 @@ def perform_statistical_analysis(results, accuracies, attribute_name, list_of_mo
     print("Models", list_of_models)
     print("Accuracies", accuracies)
     print("Worse models list", statistical_restult)
+    print_latex_results(list_of_datasets, attribute_name, list_of_models, accuracies,statistical_restult)
     return statistical_restult
 
 def get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, attribute):
