@@ -114,8 +114,9 @@ def get_extracted_features_and_labels(args, models, train_datasets, fold_idx, ph
             model_features = np.concatenate(model_features, axis=1)
             feature_list.append(model_features)
             assert model_features.shape[0] == label.shape[0]
-        assert len(feature_list) == 4
-        assert len(labels) == 4
+        num_models = 5 if args.dataset_name == 'mixed' else 4
+        assert len(feature_list) == num_models
+        assert len(labels) == num_models
     elif args.mode == '12M':
         feature_list = []
         labels = []
