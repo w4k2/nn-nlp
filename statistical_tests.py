@@ -60,13 +60,60 @@ def perform_statistical_analysis(results, accuracies, attribute_name, list_of_mo
 def get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, attribute):
     row = []
     for model_name in list_of_models:
-        if f'{model_name}_title' in avrg_table[dataset].keys():
-            row.append(avrg_table[dataset][f'{model_name}_{attribute}'])
+        if f'{model_name}_{attribute}' in avrg_table[dataset].keys():
+                row.append(avrg_table[dataset][f'{model_name}_{attribute}'])
         else:
             row.append(0)
     return row
 
-def perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models):
+def add_mode_to_attribute(attribute, mode):
+    if mode != None:
+        return f'{attribute}_{mode}'
+    return attribute
+
+def filter_results(results, list_of_datasets, list_of_models, modes):
+    key_list = []
+    for key in results.keys():
+        for dataset in list_of_datasets:
+            for model in list_of_models:
+                for mode in modes:
+                    if mode != None:
+                        if (dataset in key) and (model in key) and (mode in key):
+                            key_list.append(key)
+                    else:
+                        if (dataset in key) and (model in key) and (key.split("_")[-1] == "title" or key.split("_")[-1] == "text"):
+                            key_list.append(key)
+    return { key: results[key] for key in key_list}
+
+def show_average_table_for_3M(results, list_of_datasets, list_of_models, attribute):
+    result_dict = {}
+    print("------")
+    print(f'RESULTS for {attribute} attribute:')
+    models_result_average_on_dataset = ['tf_idf', 'lda', 'bert_multi', 'bert_eng', 'beto']
+    print("columns: ", models_result_average_on_dataset)
+    for model_name in list_of_models:
+        for dataset_name in list_of_datasets:
+            models = {
+            'esp_fake': ('bert_multi', 'beto', 'lda', 'tf_idf'),
+            'bs_detector': ('bert_eng', 'bert_multi', 'lda', 'tf_idf'),
+            'mixed': ('bert_eng', 'bert_multi', 'beto', 'lda', 'tf_idf'),
+            }
+            models_order = models[dataset_name]
+            dataset_dict={}
+            for i, model in enumerate(models_order):
+                dataset_dict[model] = np.mean(results[f'{dataset_name}_{model_name}_{attribute}_3M'][i*10:((i+1)*10)])
+            result_dict[dataset_name]=dataset_dict
+        print(f'{model_name} results:')
+        for  dataset in list_of_datasets:
+            print(f'{dataset}:  ', end =" ")
+            for model in models_result_average_on_dataset:
+                if model not in result_dict[dataset].keys():
+                    print(0, end=" ")
+                else:
+                    print(result_dict[dataset][model], end=" ")
+            print(" ")
+
+def perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode=None):
     avrg_table = {}
     for dataset in list_of_datasets:
         avr_table_dataset = get_average_table(results, dataset)
@@ -74,42 +121,56 @@ def perform_statistical_analysis_based_on_results(results, list_of_datasets, lis
     
     title_results = {}
     text_results = {}
+    title_attribute = add_mode_to_attribute("title", mode)
+    text_attribute = add_mode_to_attribute("text", mode)
     for dataset in list_of_datasets:
-        title_results[dataset] = get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, 'title')
-        text_results[dataset] = get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, 'text')
+        title_results[dataset] = get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, title_attribute)
+        text_results[dataset] = get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, text_attribute)
     
-    perform_statistical_analysis(results, text_results, 'text', list_of_models)
-    perform_statistical_analysis(results, title_results, 'title', list_of_models)
+    perform_statistical_analysis(results, text_results, title_attribute, list_of_models)
+    perform_statistical_analysis(results, title_results, text_attribute, list_of_models)
 
 def main():
     results = load_results()
-
     os.makedirs('tables/', exist_ok=True)
-
-    avrg_table_esp = get_average_table(results, 'esp_fake')
-    pretty_print_table(avrg_table_esp, table_name='Esp fake avrg results')
-    utils.save_tex_table.save_tex_table(avrg_table_esp, 'tables/esp_fake_avrg.tex')
-    avrg_table_bs_detector = get_average_table(results, 'bs_detector')
-    pretty_print_table(avrg_table_bs_detector, table_name='bs_detector avrg results')
-    utils.save_tex_table.save_tex_table(avrg_table_bs_detector, 'tables/bs_detector_avrg.tex')
-    avrg_table_mixed = get_average_table(results, 'mixed')
-    pretty_print_table(avrg_table_mixed, table_name='mixed avrg results')
-    utils.save_tex_table.save_tex_table(avrg_table_mixed, 'tables/mixed_avrg.tex')
-
-    for dataset_name in ('esp_fake', 'bs_detector', 'mixed'):
-        stats, pvalue = statistical_tests_table(results, dataset_name)
-        pretty_print_table(stats, table_name=f'{dataset_name} F-test stat')
-        pretty_print_table(pvalue, table_name=f'{dataset_name} F-test pvalue')
-        utils.save_tex_table.save_tex_table(stats, f'tables/{dataset_name}_stats.tex')
-        utils.save_tex_table.save_tex_table(pvalue, f'tables/{dataset_name}_pvalue.tex')
     
+    original_results = results
     list_of_datasets = ['bs_detector', 'esp_fake', 'mixed']
 
+    print("MODEL COMPARISON")
+    mode = None
     list_of_models = ['tf_idf', 'lda', 'bert_multi', 'bert_eng', 'beto']
-    perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models)
+    results = filter_results(original_results, list_of_datasets, list_of_models, [mode])
+    perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode)
     
+    print("==============================================")
+    print("1M ENSEMBLE")
+    mode = None
     list_of_models = ['ensemble_avrg', 'concat_extraction_model_avrg_mutual_info', 'concat_extraction_model_avrg_anova', 'concat_extraction_model_avrg_pca']
-    perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models)
+    results = filter_results(original_results, list_of_datasets, list_of_models, [mode])
+    perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode)
+
+    print("==============================================")
+    print("4M ENSEMBLE")
+    mode = "4M"
+    list_of_models = ['ensemble_avrg', 'concat_extraction_model_avrg_mutual_info', 'concat_extraction_model_avrg_anova', 'concat_extraction_model_avrg_pca']
+    results = filter_results(original_results, list_of_datasets, list_of_models, [mode])
+    perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode)
+
+    print("==============================================")
+    print("12M ENSEMBLE")
+    mode = "12M"
+    list_of_models = ['ensemble_avrg', 'concat_extraction_model_avrg_mutual_info', 'concat_extraction_model_avrg_anova', 'concat_extraction_model_avrg_pca']
+    results = filter_results(original_results, list_of_datasets, list_of_models, [mode])
+    perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode)
+    
+    print("==============================================")
+    print("3M ENSEMBLE")
+    mode = "3M"
+    list_of_models = ['ensemble_avrg', 'concat_extraction_model_avrg_mutual_info', 'concat_extraction_model_avrg_anova', 'concat_extraction_model_avrg_pca']
+    results = filter_results(original_results, list_of_datasets, list_of_models, [mode])
+    show_average_table_for_3M(results, list_of_datasets, list_of_models, "text")
+    show_average_table_for_3M(results, list_of_datasets, list_of_models, "title")
 
 def load_results():
     results = {}
@@ -141,26 +202,30 @@ def pretty_print_table(table, table_name=None):
 
 def statistical_tests_table(results, dataset_name):
     selected_results = [(key[len(dataset_name)+1:], value) for key, value in results.items() if key.startswith(dataset_name)]
+    if (selected_results[0][1].shape == (40,)) or (selected_results[0][1].shape == (50,)):
+        print("3M detected! - skipping analysis!")
+        exit(0)
 
-    table_stat = [[None]]
-    table_pvalue = [[None]]
-    for i in range(len(selected_results)):
-        row_stat = [selected_results[i][0]]
-        row_pvalue = [selected_results[i][0]]
-        for j in range(len(selected_results)):
-            if len(table_stat[0]) < len(selected_results)+1:
-                table_stat[0].append(f'{selected_results[j][0]}')
-                table_pvalue[0].append(f'{selected_results[j][0]}')
-            if i == j:
-                row_stat.append(None)
-                row_pvalue.append(None)
-                continue
-            f, p = cv52cft(selected_results[i][1], selected_results[j][1])
-            row_stat.append(f)
-            row_pvalue.append(p)
-        table_stat.append(row_stat)
-        table_pvalue.append(row_pvalue)
-    return table_stat, table_pvalue
+    else:
+        table_stat = [[None]]
+        table_pvalue = [[None]]
+        for i in range(len(selected_results)):
+            row_stat = [selected_results[i][0]]
+            row_pvalue = [selected_results[i][0]]
+            for j in range(len(selected_results)):
+                if len(table_stat[0]) < len(selected_results)+1:
+                    table_stat[0].append(f'{selected_results[j][0]}')
+                    table_pvalue[0].append(f'{selected_results[j][0]}')
+                if i == j:
+                    row_stat.append(None)
+                    row_pvalue.append(None)
+                    continue
+                f, p = cv52cft(selected_results[i][1], selected_results[j][1])
+                row_stat.append(f)
+                row_pvalue.append(p)
+            table_stat.append(row_stat)
+            table_pvalue.append(row_pvalue)
+        return table_stat, table_pvalue
 
 
 def cv52cft(a, b):
