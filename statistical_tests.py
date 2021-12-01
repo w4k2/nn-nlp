@@ -80,6 +80,30 @@ def print_latex_results(list_of_datasets, attribute_name, list_of_models, accura
     print("\end{tabular}")
     print("\end{table}")
 
+def print_latex_3M_average_table(list_of_datasets, attribute_name, list_of_models, accuracies):
+    print("\\begin{table}[]")
+    print("\centering")
+    print("\caption{Results for ", attribute_name, " attribute}")
+    print("\\begin{tabular}{|l|", end="")
+    for i in range(len(list_of_models)):
+        print("c|", end="")
+    print("}")
+
+    print("\hline")
+    print("Extraction method ", end="")
+    for model in list_of_models:
+        print(" & ", strip_model_name(model.replace("_", " ")), end="")
+    print("  \\\\")
+    print("\hline")
+    for dataset in list_of_datasets:
+        print(dataset.replace("_", " "), end="")
+        for i, model in enumerate(list_of_models):
+            print(" & ", round(accuracies[dataset][i], 3), end="")
+        print("  \\\\")
+        print("\hline")
+    print("\end{tabular}")
+    print("\end{table}")
+
 def perform_statistical_analysis(results, accuracies, attribute_name, list_of_models):
     statistical_restult = {}
     list_of_datasets = ('bs_detector', 'esp_fake', 'mixed')
@@ -156,10 +180,16 @@ def show_average_table_for_3M(results, list_of_datasets, list_of_models, attribu
             print(f'{dataset}:  ', end =" ")
             for model in models_result_average_on_dataset:
                 if model not in result_dict[dataset].keys():
+                    result_dict[dataset][model] = 0
                     print(0, end=" ")
                 else:
                     print(result_dict[dataset][model], end=" ")
             print(" ")
+        accuracies_dict = {}
+        for dataset in list_of_datasets:
+            accuracies_dict[dataset] = [ result_dict[dataset][model] for model in models_result_average_on_dataset]
+        print(accuracies_dict)
+        print_latex_3M_average_table(list_of_datasets, (attribute+f" {model_name}").replace("_"," "), models_result_average_on_dataset, accuracies_dict)
 
 def perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode=None):
     avrg_table = {}
