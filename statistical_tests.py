@@ -80,6 +80,36 @@ def print_latex_results(list_of_datasets, attribute_name, list_of_models, accura
     print("\end{tabular}")
     print("\end{table}")
 
+def map_title_to_table(numpy_filename):
+    translation_dict = {"title":"table1",
+                        "text":"table2",
+                        "title_4M":"table3",
+                        "text_4M":"table4",
+                        "title_12M":"table5",
+                        "text_12M":"table6",
+                        "text_ensemble_avrg_3M":"table7",
+                        "text_concat_extraction_model_avrg_mutual_info_3M":"table8",
+                        "text_concat_extraction_model_avrg_anova_3M":"table9",
+                        "text_concat_extraction_model_avrg_pca_3M":"table10",
+                        "title_ensemble_avrg_3M":"table11",
+                        "title_concat_extraction_model_avrg_mutual_info_3M":"table12",
+                        "title_concat_extraction_model_avrg_anova_3M":"table13",
+                        "title_concat_extraction_model_avrg_pca_3M":"table14",
+    }
+    return translation_dict[numpy_filename]
+
+def save_tables_to_numpy(list_of_datasets, list_of_models, accuracies, title):
+    print(f"creating tensor of shape ({len(list_of_datasets)},{len(list_of_models)}) with results:")
+    result_tensor = np.zeros((len(list_of_datasets), len(list_of_models)))
+    for i, dataset in enumerate(list_of_datasets):
+        for j, model in enumerate(list_of_models):
+            result_tensor[i][j] = accuracies[dataset][j]
+    print(result_tensor)
+    title = map_title_to_table(title)
+    pred_filename = f'./tables_numpy/{title}.npy'
+    os.makedirs(os.path.dirname(pred_filename), exist_ok=True)
+    np.save(pred_filename, result_tensor)
+
 def print_latex_3M_average_table(list_of_datasets, attribute_name, list_of_models, accuracies):
     print("\\begin{table}[]")
     print("\centering")
@@ -126,7 +156,8 @@ def perform_statistical_analysis(results, accuracies, attribute_name, list_of_mo
     print("Models", list_of_models)
     print("Accuracies", accuracies)
     print("Worse models list", statistical_restult)
-    print_latex_results(list_of_datasets, attribute_name, list_of_models, accuracies,statistical_restult)
+    print_latex_results(list_of_datasets, attribute_name, list_of_models, accuracies, statistical_restult)
+    save_tables_to_numpy(list_of_datasets, list_of_models, accuracies, f"{attribute_name}")
     return statistical_restult
 
 def get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, attribute):
@@ -190,6 +221,7 @@ def show_average_table_for_3M(results, list_of_datasets, list_of_models, attribu
             accuracies_dict[dataset] = [ result_dict[dataset][model] for model in models_result_average_on_dataset]
         print(accuracies_dict)
         print_latex_3M_average_table(list_of_datasets, (attribute+f" {model_name}").replace("_"," "), models_result_average_on_dataset, accuracies_dict)
+        save_tables_to_numpy(list_of_datasets, models_result_average_on_dataset, accuracies_dict, f"{attribute}_{model_name}_3M")
 
 def perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode=None):
     avrg_table = {}
@@ -218,13 +250,6 @@ def main():
     print("MODEL COMPARISON")
     mode = None
     list_of_models = ['tf_idf', 'lda', 'bert_multi', 'bert_eng', 'beto']
-    results = filter_results(original_results, list_of_datasets, list_of_models, [mode])
-    perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode)
-    
-    print("==============================================")
-    print("1M ENSEMBLE")
-    mode = None
-    list_of_models = ['ensemble_avrg', 'concat_extraction_model_avrg_mutual_info', 'concat_extraction_model_avrg_anova', 'concat_extraction_model_avrg_pca']
     results = filter_results(original_results, list_of_datasets, list_of_models, [mode])
     perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode)
 
