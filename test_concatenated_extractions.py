@@ -150,11 +150,12 @@ def select_features(args, X_train, y_train, X_test, num_features):
         selected_X_train = feature_selector.transform(X_train)
         selected_X_test = feature_selector.transform(X_test)
     else:
-        preliminary_pca = PCA(n_components=min(num_features, len(X_train)))
+        num_all_features = min(num_features, len(X_train))
+        preliminary_pca = PCA(n_components=num_all_features)
         preliminary_pca.fit(X_train)
         cumulative = np.cumsum(preliminary_pca.explained_variance_ratio_)
         indexes = np.argwhere(cumulative > 0.9)
-        num_pca_features = indexes.min() + 1
+        num_pca_features = indexes.min() + 1 if len(indexes) > 0 else num_all_features
         pca = PCA(n_components=num_pca_features)
         pca.fit(X_train)
         selected_X_train = pca.transform(X_train)
