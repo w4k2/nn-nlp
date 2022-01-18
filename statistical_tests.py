@@ -10,6 +10,7 @@ def get_index_of_given_model(model_name, model_list):
     for i in range(len(model_list)):
         if(model_list[i] == model_name):
             return i
+    #print(f'indexing problem! {model_name} not in {model_list}!')
     return -1
 
 def convert_table_to_dict(table):
@@ -31,6 +32,23 @@ def get_significance_table_from_pvalue(pvalue, list_of_models, attribute_name):
         for comparison_model in list_of_models:
             comparison_index = get_index_of_given_model(comparison_model+'_' + attribute_name, pvalue[0])
             significance_table[model_name][comparison_model] = is_significant(pvalue[extractor_index][comparison_index])
+    #print("SIGNIFICANCE: ", significance_table)
+    return significance_table
+
+def get_significance_table_from_pvalue_for_simple_model(pvalue, list_of_models, attribute_name, dataset_name):
+    significance_table = {}
+    for model_name in list_of_models:
+        significance_table[model_name] = {}
+        extractor_index = get_index_of_given_model(f'{model_name}_{dataset_name}_{attribute_name}', pvalue[0])
+        #print(f'Extractor index {extractor_index}')
+        for comparison_model in list_of_models:
+            comparison_index = get_index_of_given_model(f'{comparison_model}_{dataset_name}_{attribute_name}', pvalue[0])
+            #print(f'Compared index {comparison_index}')
+            #print(f'Comparison of {model_name} with {comparison_model}')
+            if (extractor_index != -1) or (comparison_index != -1):
+                significance_table[model_name][comparison_model] = is_significant(pvalue[extractor_index][comparison_index])
+            else:
+                significance_table[model_name][comparison_model] = False
     #print("SIGNIFICANCE: ", significance_table)
     return significance_table
 
@@ -134,14 +152,18 @@ def print_latex_3M_average_table(list_of_datasets, attribute_name, list_of_model
     print("\end{tabular}")
     print("\end{table}")
 
-def perform_statistical_analysis(results, accuracies, attribute_name, list_of_models):
+def perform_statistical_analysis(results, accuracies, attribute_name, list_of_models, mode=""):
     statistical_restult = {}
     list_of_datasets = ('bs_detector', 'esp_fake', 'mixed')
     for dataset_name in list_of_datasets:
         _, pvalue = statistical_tests_table(results, dataset_name)
+        #pretty_print_table(pvalue)
         statistical_restult[dataset_name] = []
         accuracies_for_dataset = accuracies[dataset_name]
-        significance_table = get_significance_table_from_pvalue(pvalue, list_of_models, attribute_name)
+        if(mode != ""):
+            significance_table = get_significance_table_from_pvalue(pvalue, list_of_models, attribute_name)
+        else:
+            significance_table = get_significance_table_from_pvalue_for_simple_model(pvalue, list_of_models, attribute_name, dataset_name)
         for i, extractor_name in enumerate(list_of_models):
             current_accuracy = accuracies_for_dataset[i]
             statistical_restult[dataset_name].append([])
@@ -165,12 +187,14 @@ def get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_mo
     for model_name in list_of_models:
         if f'{model_name}_{attribute}' in avrg_table[dataset].keys():
                 row.append(avrg_table[dataset][f'{model_name}_{attribute}'])
+        elif f'{model_name}_{dataset}_{attribute}' in avrg_table[dataset].keys():
+                row.append(avrg_table[dataset][f'{model_name}_{dataset}_{attribute}'])
         else:
             row.append(0)
     return row
 
 def add_mode_to_attribute(attribute, mode):
-    if mode != None:
+    if mode != "":
         return f'{attribute}_{mode}'
     return attribute
 
@@ -180,13 +204,14 @@ def filter_results(results, list_of_datasets, list_of_models, modes):
         for dataset in list_of_datasets:
             for model in list_of_models:
                 for mode in modes:
-                    if mode != None:
-                        if (dataset in key) and (model in key) and (mode in key):
+                    if(mode != ""):
+                        if (f'{dataset}_{model}' in key) and (mode in key):
+                                key_list.append(key)
+                    elif (f'{dataset}_{model}_{dataset}' in key) and (key.split("_")[-1] == "title" or key.split("_")[-1] == "text"):
                             key_list.append(key)
-                    else:
-                        if (dataset in key) and (model in key) and (key.split("_")[-1] == "title" or key.split("_")[-1] == "text"):
-                            key_list.append(key)
-    return { key: results[key] for key in key_list}
+    result_dictionary = { key: results[key] for key in key_list}
+    #print(result_dictionary)
+    return result_dictionary
 
 def show_average_table_for_3M(results, list_of_datasets, list_of_models, attribute):
     result_dict = {}
@@ -223,7 +248,7 @@ def show_average_table_for_3M(results, list_of_datasets, list_of_models, attribu
         print_latex_3M_average_table(list_of_datasets, (attribute+f" {model_name}").replace("_"," "), models_result_average_on_dataset, accuracies_dict)
         save_tables_to_numpy(list_of_datasets, models_result_average_on_dataset, accuracies_dict, f"{attribute}_{model_name}_3M")
 
-def perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode=None):
+def perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode=""):
     avrg_table = {}
     for dataset in list_of_datasets:
         avr_table_dataset = get_average_table(results, dataset)
@@ -237,8 +262,8 @@ def perform_statistical_analysis_based_on_results(results, list_of_datasets, lis
         title_results[dataset] = get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, title_attribute)
         text_results[dataset] = get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, text_attribute)
     
-    perform_statistical_analysis(results, text_results, title_attribute, list_of_models)
-    perform_statistical_analysis(results, title_results, text_attribute, list_of_models)
+    perform_statistical_analysis(results, text_results, title_attribute, list_of_models, mode)
+    perform_statistical_analysis(results, title_results, text_attribute, list_of_models, mode)
 
 def main():
     results = load_results()
@@ -248,7 +273,7 @@ def main():
     list_of_datasets = ['bs_detector', 'esp_fake', 'mixed']
 
     print("MODEL COMPARISON")
-    mode = None
+    mode = ""
     list_of_models = ['tf_idf', 'lda', 'bert_multi', 'bert_eng', 'beto']
     results = filter_results(original_results, list_of_datasets, list_of_models, [mode])
     perform_statistical_analysis_based_on_results(results, list_of_datasets, list_of_models, mode)
