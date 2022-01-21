@@ -262,8 +262,8 @@ def perform_statistical_analysis_based_on_results(results, list_of_datasets, lis
         title_results[dataset] = get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, title_attribute)
         text_results[dataset] = get_dataset_row_of_accuracies_for_all_models(avrg_table, dataset, list_of_models, text_attribute)
     
-    perform_statistical_analysis(results, text_results, title_attribute, list_of_models, mode)
-    perform_statistical_analysis(results, title_results, text_attribute, list_of_models, mode)
+    perform_statistical_analysis(results, text_results, text_attribute, list_of_models, mode)
+    perform_statistical_analysis(results, title_results, title_attribute, list_of_models, mode)
 
 def main():
     results = load_results()
