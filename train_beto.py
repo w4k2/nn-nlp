@@ -144,5 +144,28 @@ if __name__ == '__main__':
     #         print(name)
     #         assert param == new_param
     # assert model == model_new
-    
+
     main()
+
+    # dataset_docs, dataset_labels = datasets.load_dataset('bs_detector')
+    # # dataset_docs, dataset_labels = datasets.load_dataset('esp_fake')
+
+    # dataset_docs = list(dataset_docs)
+    # # print(type(dataset_docs))
+    # # exit()
+    # tokenizer = BertTokenizer.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased', do_lower_case=False)
+    # # print(tokenizer.vocab)
+    # print(tokenizer.ids_to_tokens[0])
+    # print(tokenizer.ids_to_tokens[1])
+    # print(tokenizer.ids_to_tokens[1100])
+    # print(tokenizer.ids_to_tokens[4963])
+    # print(dataset_docs[0])
+
+    # train_encodings = tokenizer(dataset_docs[0], truncation=True, padding=True)
+    # # print(train_encodings)
+
+    # reverse_mapping = ""
+    # for token_id in train_encodings['input_ids']:
+    #     word = tokenizer.ids_to_tokens[token_id]
+    #     reverse_mapping += f" {word}"
+    # print(reverse_mapping)
