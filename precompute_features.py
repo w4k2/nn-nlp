@@ -43,11 +43,6 @@ def main():
                 X_train = X_train.toarray()
                 X_test = X_test.toarray()
             y_train, y_test = labels[train_idx[fold_idx]], labels[test_idx[fold_idx]]
-            if dataset_name == 'mixed':
-                y_train[np.argwhere(y_train == 2).flatten()] = 0
-                y_train[np.argwhere(y_train == 3).flatten()] = 1
-                y_test[np.argwhere(y_test == 2).flatten()] = 0
-                y_test[np.argwhere(y_test == 3).flatten()] = 1
 
             assert X_train.shape[0] == y_train.shape[0]
             assert X_test.shape[0] == y_test.shape[0]

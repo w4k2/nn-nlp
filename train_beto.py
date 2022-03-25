@@ -10,6 +10,7 @@ from tqdm.auto import tqdm
 from transformers import BertTokenizer, AutoModelForSequenceClassification
 from transformers import get_scheduler, AdamW
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 
 
 class TextDataset(torch.utils.data.Dataset):
@@ -41,11 +42,6 @@ def main():
         dataset_docs_train = [dataset_docs[i] for i in train_idx]
         dataset_docs_test = [dataset_docs[i] for i in test_idx]
         y_train, y_test = dataset_labels[train_idx], dataset_labels[test_idx]
-        if args.dataset_name == 'mixed':
-            y_train[np.argwhere(y_train == 2).flatten()] = 0
-            y_train[np.argwhere(y_train == 3).flatten()] = 1
-            y_test[np.argwhere(y_test == 2).flatten()] = 0
-            y_test[np.argwhere(y_test == 3).flatten()] = 1
 
         tokenizer = BertTokenizer.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased', do_lower_case=False)
 
@@ -107,7 +103,8 @@ def main():
                 test_labels.extend(batch['labels'].numpy())
                 test_preds.extend(y_pred.cpu().numpy())
 
-        accuracy = accuracy_score(test_labels, test_preds)
+        # accuracy = accuracy_score(test_labels, test_preds)
+        accuracy = balanced_accuracy_score(test_labels, test_preds)
         print(f'fold {fold_idx} = {accuracy}')
         acc_all.append(accuracy)
 

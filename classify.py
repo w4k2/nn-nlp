@@ -5,6 +5,8 @@ import pathlib
 import os
 import pickle
 
+from sklearn.metrics import balanced_accuracy_score
+
 
 def main():
     args = parse_args()
@@ -30,12 +32,14 @@ def main():
         fp = open(filename, 'wb+')
         pickle.dump(model, fp)
 
-        accuracy = model.score(X_test, y_test)
+        # accuracy = model.score(X_test, y_test)
+        y_pred = model.predict(X_test)
+        accuracy = balanced_accuracy_score(y_test, y_pred)
         print(f'fold {fold_idx} = {accuracy}')
         acc_all.append(accuracy)
 
         y_pred = model.predict_proba(X_test)
-        assert y_pred.shape[1] == 2
+        # assert y_pred.shape[1] == 2
         pred_filename = f'./predictions/{args.extraction_method}/{args.train_dataset_name}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
         os.makedirs(os.path.dirname(pred_filename), exist_ok=True)
         np.save(pred_filename, y_pred)
