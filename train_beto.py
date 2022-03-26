@@ -61,6 +61,7 @@ def main():
         model = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
         if args.dataset_name == 'mixed':
             model.classifier = nn.Linear(in_features=768, out_features=4, bias=True)
+            model.num_labels = 4
         model.to(device)
 
         optimizer = AdamW(model.parameters(), lr=3e-5)
