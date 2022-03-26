@@ -9,6 +9,7 @@ import tensorflow_text as text  # do not remove this import, it is required for 
 import pathlib
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 from utils.adamw_optimizer import create_optimizer
 
 
@@ -24,18 +25,14 @@ def main():
         docs_train = [str(docs[i]) for i in train_idx]
         docs_test = [str(docs[i]) for i in test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
-        if args.dataset_name == 'mixed':
-            y_train[np.argwhere(y_train == 2).flatten()] = 0
-            y_train[np.argwhere(y_train == 3).flatten()] = 1
-            y_test[np.argwhere(y_test == 2).flatten()] = 0
-            y_test[np.argwhere(y_test == 3).flatten()] = 1
-        model = get_model(language=args.language)
+        num_outputs = 4 if args.dataset_name == 'mixed' else 2
+        model = get_model(language=args.language, num_outputs=num_outputs)
         model = train_bert_model(docs_train, y_train, model)
         checkpoint_path = f'./weights/bert_{args.language}/{args.dataset_name}/{args.attribute}/fold_{fold_idx}/bert'
         model.save_weights(checkpoint_path)
 
         y_pred = model.predict(docs_test)
-        accuracy = accuracy_score(y_test, y_pred.argmax(axis=1))
+        accuracy = balanced_accuracy_score(y_test, y_pred.argmax(axis=1))
         print(f'fold {fold_idx} = {accuracy}')
         acc_all.append(accuracy)
 
@@ -55,7 +52,7 @@ def parse_args():
     return args
 
 
-def get_model(language='eng'):
+def get_model(language='eng', num_outputs=2):
     preprocess_url_dict = {
         'eng': "https://tfhub.dev/tensorflow/bert_en_cased_preprocess/3",
         'multi': "https://tfhub.dev/tensorflow/bert_multi_cased_preprocess/3"
@@ -66,11 +63,11 @@ def get_model(language='eng'):
     }
     bert_preprocess_url = preprocess_url_dict[language]
     bert_model_url = model_url_dict[language]
-    model = get_keras_model(bert_preprocess_url, bert_model_url)
+    model = get_keras_model(bert_preprocess_url, bert_model_url, num_outputs=num_outputs)
     return model
 
 
-def get_keras_model(bert_preprocess_url, bert_model_url):
+def get_keras_model(bert_preprocess_url, bert_model_url, num_outputs=2):
     text_input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='text')
     preprocessing_layer = hub.KerasLayer(bert_preprocess_url, name='preprocessing')
     encoder_inputs = preprocessing_layer(text_input)
@@ -78,7 +75,7 @@ def get_keras_model(bert_preprocess_url, bert_model_url):
     outputs = encoder(encoder_inputs)
     out = outputs['pooled_output']
     out = tf.keras.layers.Dropout(0.1)(out)
-    y = tf.keras.layers.Dense(2, activation='softmax', name='classifier')(out)
+    y = tf.keras.layers.Dense(num_outputs, activation='softmax', name='classifier')(out)
     model = tf.keras.Model(text_input, y)
     return model
 
