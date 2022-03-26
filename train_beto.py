@@ -1,10 +1,12 @@
 import argparse
+from audioop import bias
 import torch
 import datasets
 import pathlib
 import os
 import numpy as np
 import sklearn.model_selection
+import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from transformers import BertTokenizer, AutoModelForSequenceClassification
@@ -57,6 +59,8 @@ def main():
         device = torch.device("cuda")
         # model = BertForMaskedLM.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
         model = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
+        if args.dataset_name == 'mixed':
+            model.classifier = nn.Linear(in_features=768, out_features=4, bias=True)
         model.to(device)
 
         optimizer = AdamW(model.parameters(), lr=3e-5)

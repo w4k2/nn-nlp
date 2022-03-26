@@ -12,6 +12,6 @@ dependencies:
   - numpy
   - pandas
   - tqdm
-  - transformers
+  - transformers=4.11.3
   - cudatoolkit=11.3
   - pytorch
