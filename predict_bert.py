@@ -13,7 +13,7 @@ from utils.adamw_optimizer import create_optimizer
 
 
 def main():
-    tf.get_logger().setLevel('ERROR') # tensorflow prints a lot of warnings due to lack of optimizer in this script
+    tf.get_logger().setLevel('ERROR')  # tensorflow prints a lot of warnings due to lack of optimizer in this script
     args = parse_args()
     print(args)
     docs, labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
@@ -24,11 +24,6 @@ def main():
         docs_train = [str(docs[i]) for i in train_idx]
         docs_test = [str(docs[i]) for i in test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
-        if args.dataset_name == 'mixed':
-            y_train[np.argwhere(y_train == 2).flatten()] = 0
-            y_train[np.argwhere(y_train == 3).flatten()] = 1
-            y_test[np.argwhere(y_test == 2).flatten()] = 0
-            y_test[np.argwhere(y_test == 3).flatten()] = 1
 
         model = get_model(language=args.language)
         checkpoint_path = f'./weights/bert_{args.language}/{args.train_dataset_name}/{args.attribute}/fold_{fold_idx}/bert'
@@ -92,6 +87,7 @@ def get_keras_model(bert_preprocess_url, bert_model_url, add_classifier=True):
         out = tf.keras.layers.Dense(2, activation='softmax', name='classifier')(out)
     model = tf.keras.Model(text_input, out)
     return model
+
 
 if __name__ == '__main__':
     main()
