@@ -38,11 +38,6 @@ def main():
         dataset_docs_train = [dataset_docs[i] for i in train_idx]
         dataset_docs_test = [dataset_docs[i] for i in test_idx]
         y_train, y_test = dataset_labels[train_idx], dataset_labels[test_idx]
-        if args.dataset_name == 'mixed':
-            y_train[np.argwhere(y_train == 2).flatten()] = 0
-            y_train[np.argwhere(y_train == 3).flatten()] = 1
-            y_test[np.argwhere(y_test == 2).flatten()] = 0
-            y_test[np.argwhere(y_test == 3).flatten()] = 1
 
         tokenizer = BertTokenizer.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased', do_lower_case=False)
         train_encodings = tokenizer(dataset_docs_train, truncation=True, padding=True)
@@ -102,6 +97,7 @@ def collect_predictions(model, dataloader, device):
     test_preds = np.concatenate(test_preds, axis=0)
     test_labels = np.concatenate(test_labels, axis=0)
     return test_preds, test_labels
+
 
 if __name__ == '__main__':
     # model = AutoModelForSequenceClassification.from_pretrained('dccuchile/bert-base-spanish-wwm-uncased')
