@@ -48,7 +48,8 @@ def main():
         val_dataloader = DataLoader(test_dataset, shuffle=False, batch_size=64, num_workers=4)
 
         device = torch.device("cuda")
-        model = AutoModelForSequenceClassification.from_pretrained(f'./weights/beto/{args.train_dataset_name}/{args.attribute}/fold_{fold_idx}/', num_labels=4)
+        num_labels = 4 if args.train_dataset_name == 'mixed' else 2
+        model = AutoModelForSequenceClassification.from_pretrained(f'./weights/beto/{args.train_dataset_name}/{args.attribute}/fold_{fold_idx}/', num_labels=num_labels)
         model.to(device)
 
         test_preds, _ = collect_predictions(model, val_dataloader, device)
@@ -56,7 +57,7 @@ def main():
         os.makedirs(os.path.dirname(pred_filename), exist_ok=True)
         np.save(pred_filename, test_preds)
 
-        model_features = AutoModelForSequenceClassification.from_pretrained(f'./weights/beto/{args.train_dataset_name}/{args.attribute}/fold_{fold_idx}/', num_labels=4)
+        model_features = AutoModelForSequenceClassification.from_pretrained(f'./weights/beto/{args.train_dataset_name}/{args.attribute}/fold_{fold_idx}/', num_labels=num_labels)
         model_features.dropout = nn.Identity()
         model_features.classifier = nn.Identity()
         model_features.to(device)
