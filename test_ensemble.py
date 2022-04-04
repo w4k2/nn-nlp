@@ -7,6 +7,7 @@ import sklearn.neural_network
 import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 
 
 def main():
@@ -33,33 +34,36 @@ def main():
     pbar = tqdm(enumerate(k_fold.split(docs, labels)), desc='Fold feature extraction', total=10)
     for fold_idx, (train_idx, test_idx) in pbar:
         _, y_test = labels[train_idx], labels[test_idx]
-        if args.dataset_name == 'mixed':
-            y_test[np.argwhere(y_test == 2).flatten()] = 0
-            y_test[np.argwhere(y_test == 3).flatten()] = 1
 
         if args.mode == '4M':
             model_predictions = []
             for model_name in models[args.dataset_name]:
                 pred_filename = f'./predictions/{model_name}/{args.dataset_name}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
                 pred = np.load(pred_filename)
+                if pred.shape[1] != 4:
+                    pred = np.repeat(pred, 2, axis=1) / 2
                 model_predictions.append(pred)
             model_predictions = np.stack(model_predictions)
             average_predictions = np.mean(model_predictions, axis=0, keepdims=False)
             y_pred = np.argmax(average_predictions, axis=1)
-            accuracy = accuracy_score(y_test, y_pred)
+            accuracy = balanced_accuracy_score(y_test, y_pred)
             acc_all.append(accuracy)
             print(f'fold {fold_idx}, average models accuracy = {accuracy}')
         elif args.mode == '3M':
             for model_name in models[args.dataset_name]:
+                print('model_name = ', model_name)
                 model_predictions = []
                 for train_dataset in train_datasets[model_name]:
                     pred_filename = f'./predictions/{model_name}/{train_dataset}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
                     pred = np.load(pred_filename)
+                    if pred.shape[1] != 4:
+                        pred = np.repeat(pred, 2, axis=1) / 2
+                    print('pred.shape = ', pred.shape)
                     model_predictions.append(pred)
                 model_predictions = np.stack(model_predictions)
                 average_predictions = np.mean(model_predictions, axis=0, keepdims=False)
                 y_pred = np.argmax(average_predictions, axis=1)
-                accuracy = accuracy_score(y_test, y_pred)
+                accuracy = balanced_accuracy_score(y_test, y_pred)
                 acc_all.append(accuracy)
                 print(f'fold {fold_idx}, model = {model_name}, average models accuracy = {accuracy}')
         elif args.mode == '12M':
@@ -68,11 +72,13 @@ def main():
                 for train_dataset in train_datasets[model_name]:
                     pred_filename = f'./predictions/{model_name}/{train_dataset}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
                     pred = np.load(pred_filename)
+                    if pred.shape[1] != 4:
+                        pred = np.repeat(pred, 2, axis=1) / 2
                     model_predictions.append(pred)
             model_predictions = np.stack(model_predictions)
             average_predictions = np.mean(model_predictions, axis=0, keepdims=False)
             y_pred = np.argmax(average_predictions, axis=1)
-            accuracy = accuracy_score(y_test, y_pred)
+            accuracy = balanced_accuracy_score(y_test, y_pred)
             acc_all.append(accuracy)
             print(f'fold {fold_idx}, average models accuracy = {accuracy}')
 

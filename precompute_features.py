@@ -25,11 +25,11 @@ def main():
         train_idx, test_idx = zip(*indexes)
         fold_indexes[dataset_name] = train_idx, test_idx
 
-    docs, labels = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
+    extractor_docs, _ = datasets.load_dataset(args.dataset_name, attribute=args.attribute)
     pbar = tqdm(range(10), desc='Fold feature extraction', total=10)
     for fold_idx in pbar:
         train_data_idx = fold_indexes[args.dataset_name][0][fold_idx]
-        docs_train = [docs[i] for i in train_data_idx]
+        docs_train = [extractor_docs[i] for i in train_data_idx]
         model = get_model(args)
         model.fit(docs_train)
 

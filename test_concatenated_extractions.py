@@ -7,6 +7,7 @@ import sklearn.neural_network
 import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 from sklearn.feature_selection import mutual_info_classif, f_classif
 from sklearn.feature_selection import SelectKBest
 from sklearn.decomposition import PCA
@@ -39,11 +40,6 @@ def main():
     pbar = tqdm(enumerate(k_fold.split(docs, labels)), desc='Fold feature extraction', total=10)
     for fold_idx, (train_idx, test_idx) in pbar:
         y_train_from_cross_validation, y_test_from_cross_validation = labels[train_idx], labels[test_idx]
-        if args.dataset_name == 'mixed':
-            y_train_from_cross_validation[np.argwhere(y_train_from_cross_validation == 2).flatten()] = 0
-            y_train_from_cross_validation[np.argwhere(y_train_from_cross_validation == 3).flatten()] = 1
-            y_test_from_cross_validation[np.argwhere(y_test_from_cross_validation == 2).flatten()] = 0
-            y_test_from_cross_validation[np.argwhere(y_test_from_cross_validation == 3).flatten()] = 1
 
         X_train_all, y_train_all = get_extracted_features_and_labels(args, models, train_datasets, fold_idx, 'train')
         if args.mode == '4M':
@@ -71,7 +67,7 @@ def main():
             model.fit(selected_X_train, y_train)
 
             y_pred = model.predict(selected_X_test)
-            accuracy = accuracy_score(y_test, y_pred)
+            accuracy = balanced_accuracy_score(y_test, y_pred)
             acc_all.append(accuracy)
             acc_update = f'fold {fold_idx}, accuracy = {accuracy}' if len(X_train_all) == 1 else f'fold {fold_idx}, model = {models[args.dataset_name][i]}, accuracy = {accuracy}'
             print(acc_update)

@@ -25,7 +25,8 @@ def main():
         docs_test = [str(docs[i]) for i in test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
 
-        model = get_model(language=args.language)
+        num_outputs = 4 if args.train_dataset_name == 'mixed' else 2
+        model = get_model(language=args.language, num_outputs=num_outputs)
         checkpoint_path = f'./weights/bert_{args.language}/{args.train_dataset_name}/{args.attribute}/fold_{fold_idx}/bert'
         model.load_weights(checkpoint_path)
 
@@ -60,7 +61,7 @@ def parse_args():
     return args
 
 
-def get_model(language='eng', add_classifier=True):
+def get_model(language='eng', add_classifier=True, num_outputs=2):
     preprocess_url_dict = {
         'eng': "https://tfhub.dev/tensorflow/bert_en_cased_preprocess/3",
         'multi': "https://tfhub.dev/tensorflow/bert_multi_cased_preprocess/3"
@@ -71,11 +72,11 @@ def get_model(language='eng', add_classifier=True):
     }
     bert_preprocess_url = preprocess_url_dict[language]
     bert_model_url = model_url_dict[language]
-    model = get_keras_model(bert_preprocess_url, bert_model_url, add_classifier=add_classifier)
+    model = get_keras_model(bert_preprocess_url, bert_model_url, add_classifier=add_classifier, num_outputs=num_outputs)
     return model
 
 
-def get_keras_model(bert_preprocess_url, bert_model_url, add_classifier=True):
+def get_keras_model(bert_preprocess_url, bert_model_url, add_classifier=True, num_outputs=2):
     text_input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='text')
     preprocessing_layer = hub.KerasLayer(bert_preprocess_url, name='preprocessing')
     encoder_inputs = preprocessing_layer(text_input)
@@ -84,7 +85,7 @@ def get_keras_model(bert_preprocess_url, bert_model_url, add_classifier=True):
     out = outputs['pooled_output']
     if add_classifier:
         out = tf.keras.layers.Dropout(0.1)(out)
-        out = tf.keras.layers.Dense(2, activation='softmax', name='classifier')(out)
+        out = tf.keras.layers.Dense(num_outputs, activation='softmax', name='classifier')(out)
     model = tf.keras.Model(text_input, out)
     return model
 
