@@ -40,7 +40,7 @@ def main():
             for model_name in models[args.dataset_name]:
                 pred_filename = f'./predictions/{model_name}/{args.dataset_name}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
                 pred = np.load(pred_filename)
-                if pred.shape[1] != 4:
+                if args.dataset_name == 'mixed' and pred.shape[1] != 4:
                     pred = np.repeat(pred, 2, axis=1) / 2
                 model_predictions.append(pred)
             model_predictions = np.stack(model_predictions)
