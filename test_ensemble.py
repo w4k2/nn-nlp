@@ -73,9 +73,11 @@ def main():
                 for train_dataset in train_datasets[model_name]:
                     pred_filename = f'./predictions/{model_name}/{train_dataset}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
                     pred = np.load(pred_filename)
-                    if pred.shape[1] != 4:
-                        pred = np.repeat(pred, 2, axis=1) / 2
                     model_predictions.append(pred)
+            if not all(pred.shape[1] == 2 for pred in model_predictions):
+                for i in range(len(model_predictions)):
+                    if model_predictions[i].shape[1] != 4:
+                        model_predictions[i] = np.repeat(model_predictions[i], 2, axis=1) / 2
             model_predictions = np.stack(model_predictions)
             average_predictions = np.mean(model_predictions, axis=0, keepdims=False)
             y_pred = np.argmax(average_predictions, axis=1)
