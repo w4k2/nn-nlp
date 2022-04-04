@@ -64,6 +64,24 @@ def strip_model_name(name):
         result = new_result
     return result
 
+def strip_dataset_name(dataset_name):
+    if dataset_name == "bs_detector":
+        return "\emph{kaggle}"
+    elif dataset_name == "esp_fake":
+        return "\emph{esp fake}"
+    elif dataset_name == "mixed":
+        return "\emph{mixed}"
+    else:
+        raise Exception("check dataset names in experiment!")
+
+def strip_float(float_number):
+    rounded = round(float_number, 3)
+    rounded_string = "{:.3f}".format(rounded)
+    if rounded_string == "0.000":
+        return "---"
+    if rounded_string[0] == "0":
+        return rounded_string[1:]
+
 def print_latex_results(list_of_datasets, attribute_name, list_of_models, accuracies, statistical_restult):
     print("\\begin{table}[]")
     print("\centering")
@@ -80,19 +98,22 @@ def print_latex_results(list_of_datasets, attribute_name, list_of_models, accura
     print("  \\\\")
     print("\hline")
     for dataset in list_of_datasets:
-        print(dataset.replace("_", " "), end="")
+        print(strip_dataset_name(dataset), end="")
         for i, model in enumerate(list_of_models):
-            print(" & ", round(accuracies[dataset][i], 3), end="")
+            print(" & ", strip_float(accuracies[dataset][i]), end="")
         print("  \\\\")
         for i, model in enumerate(list_of_models):
-            print(" & \small{", end="")
+            print(" & \\scriptsize ", end="")
             worse_models = statistical_restult[dataset][i]
             if len(worse_models) == 0:
-                print("-", end="")
+                print("---", end="")
             else:
-                for worse_model in worse_models:
-                    print(worse_model, end=" ")
-            print("} ", end="")
+                for worse_model_index, worse_model  in enumerate(worse_models):
+                    if(worse_model_index == (len(worse_models) - 1)):
+                        print(worse_model, end=" ")
+                    else:
+                        print(worse_model, end=", ")
+            print(" ", end="")
         print("  \\\\")
         print("\hline")
     print("\end{tabular}")
@@ -154,14 +175,13 @@ def print_latex_3M_average_table_with_statistical_analysis(list_of_datasets, att
     print("  \\\\")
     print("\hline")
     for dataset in list_of_datasets:
-        print(dataset.replace("_", " "), end="")
+        print(strip_dataset_name(dataset), end="")
         for i, model in enumerate(list_of_models):
             if model in accuracies[dataset].keys():
-                print(" & ", round(accuracies[dataset][model], 3), end="")
+                print(" & ", strip_float(accuracies[dataset][model]), end="")
             else:
                 print(" &  --- ", end="")
         print("  \\\\")
-        print("\hline")
         for i, model in enumerate(list_of_models):
             if model in accuracies[dataset].keys():
                 print(f'& \\scriptsize {get_formatted_stat_result(statistical_results[dataset][model], list_of_models)} ', end='')
