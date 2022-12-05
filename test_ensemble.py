@@ -86,10 +86,30 @@ def main():
             accuracy = balanced_accuracy_score(y_test, y_pred)
             acc_all.append(accuracy)
             print(f'fold {fold_idx}, average models accuracy = {accuracy}')
+        elif args.mode == '9M':
+            model_predictions = []
+            for model_name in models[args.dataset_name]:
+                for train_dataset in train_datasets[model_name]:
+                    if model_name in ('bert_multi', 'beto', 'bert_eng') and train_dataset != args.dataset_name:
+                        continue
+                    pred_filename = f'./predictions/{model_name}/{train_dataset}_{args.dataset_name}/{args.attribute}/fold_{fold_idx}/predictions.npy'
+                    pred = np.load(pred_filename)
+                    if args.dataset_name == 'mixed' and pred.shape[1] != 4:
+                        pred = np.repeat(pred, 2, axis=1) / 2
+                    elif args.dataset_name != 'mixed' and pred.shape[1] != 2:
+                        pred = pred[:, :2] + pred[:, 2:]
+                    model_predictions.append(pred)
+            model_predictions = np.stack(model_predictions)
+            average_predictions = np.mean(model_predictions, axis=0, keepdims=False)
+            y_pred = np.argmax(average_predictions, axis=1)
+            accuracy = balanced_accuracy_score(y_test, y_pred)
+            acc_all.append(accuracy)
+            print(f'fold {fold_idx}, average models accuracy = {accuracy}')
 
     output_path = pathlib.Path('results/')
     os.makedirs(output_path, exist_ok=True)
     np.save(output_path / f'{args.dataset_name}_ensemble_avrg_{args.attribute}_{args.mode}.npy', acc_all)
+    print(sum(acc_all) / len(acc_all))
 
 
 def parse_args():
@@ -97,7 +117,7 @@ def parse_args():
 
     parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector', 'mixed'))
     parser.add_argument('--attribute', choices=('text', 'title'), required=True)
-    parser.add_argument('--mode', type=str, choices=('3M', '4M', '12M'))
+    parser.add_argument('--mode', type=str, choices=('3M', '4M', '12M', '9M'))
 
     args = parser.parse_args()
     return args

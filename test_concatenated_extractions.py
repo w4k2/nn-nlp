@@ -60,6 +60,8 @@ def main():
                 num_features = X_train.shape[1] // 3  # average over number of possible training datasets
             elif args.mode == '12M':
                 num_features = X_train.shape[1] // 12  # average over both
+            elif args.mode == '9M':
+                num_features = X_train.shape[1] // 9
 
             selected_X_train, selected_X_test = select_features(args, X_train, y_train, X_test, num_features)
 
@@ -75,6 +77,7 @@ def main():
     output_path = pathlib.Path('results/')
     os.makedirs(output_path, exist_ok=True)
     np.save(output_path / f'{args.dataset_name}_concat_extraction_model_avrg_{args.feature_selection}_{args.attribute}_{args.mode}.npy', acc_all)
+    print(sum(acc_all) / len(acc_all))
 
 
 def get_extracted_features_and_labels(args, models, train_datasets, fold_idx, phase='train'):
@@ -130,6 +133,25 @@ def get_extracted_features_and_labels(args, models, train_datasets, fold_idx, ph
             if not np.array_equal(labels[0], labels[i]):  # all labels should be the same
                 raise Exception(f'labels for {models[args.dataset_name][i]} extractions are different than the others!')
         labels = [labels[0]]
+    elif args.mode == '9M':
+        feature_list = []
+        labels = []
+        for model_name in models[args.dataset_name]:
+            for train_dataset in train_datasets[model_name]:
+                if model_name in ('bert_multi', 'beto', 'bert_eng') and train_dataset != args.dataset_name:
+                    continue
+                features_filename = f'./extracted_features/{train_dataset}_{model_name}_{args.dataset_name}/fold_{fold_idx}_X_{phase}_{args.attribute}.npy'
+                features = np.load(features_filename)
+                feature_list.append(features)
+                if train_dataset == args.dataset_name:
+                    label_filename = f'./extracted_features/{train_dataset}_{model_name}_{args.dataset_name}/fold_{fold_idx}_y_{phase}_{args.attribute}.npy'
+                    label = np.load(label_filename)
+                    labels.append(label)
+        feature_list = [np.concatenate(feature_list, axis=1)]
+        for i in range(1, len(labels)):
+            if not np.array_equal(labels[0], labels[i]):  # all labels should be the same
+                raise Exception(f'labels for {models[args.dataset_name][i]} extractions are different than the others!')
+        labels = [labels[0]]
 
     return feature_list, labels
 
@@ -165,7 +187,7 @@ def parse_args():
     parser.add_argument('--dataset_name', type=str, choices=('esp_fake', 'bs_detector', 'mixed'))
     parser.add_argument('--attribute', choices=('text', 'title'), required=True)
     parser.add_argument('--feature_selection', type=str, choices=('anova', 'mutual_info', 'pca'))
-    parser.add_argument('--mode', type=str, choices=('3M', '4M', '12M'))
+    parser.add_argument('--mode', type=str, choices=('3M', '4M', '12M', '9M'))
 
     args = parser.parse_args()
     return args
